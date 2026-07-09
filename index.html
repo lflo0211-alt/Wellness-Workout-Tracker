@@ -1,0 +1,2863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Holistic Wellness"/>
+<meta name="theme-color" content="#1B3A5C"/>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+<title>Holistic Wellness</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#F3F4F6;min-height:100vh}
+.safe-header{padding-top:max(16px,env(safe-area-inset-top))}
+button{font-family:inherit;cursor:pointer}
+input,select,textarea{font-family:inherit}
+.screen{display:none;min-height:100vh}
+.screen.active{display:block}
+@keyframes pip-pop{0%{transform:scale(1)}40%{transform:scale(1.5);background:#3A7D44;border-color:#3A7D44}70%{transform:scale(0.9)}100%{transform:scale(1)}}
+@keyframes ex-burst{0%{box-shadow:0 0 0 0 #3A7D4466}50%{box-shadow:0 0 0 12px #3A7D4400}100%{box-shadow:0 0 0 0 #3A7D4400}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+.burst{animation:ex-burst 0.9s ease-out}
+.fadein{animation:fadeIn 0.3s ease-out}
+.pulse{animation:pulse 2s infinite}
+.flex{display:flex;align-items:center}
+.spaceb{justify-content:space-between}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.grid4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px}
+.grid7{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.modal-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.6);align-items:flex-end;justify-content:center;padding:0}
+.modal-overlay.open{display:flex}
+.modal-sheet{background:#fff;border-radius:20px 20px 0 0;width:100%;max-height:85vh;overflow-y:auto;padding:20px 16px 40px}
+.modal-overlay.center{align-items:center;padding:20px}
+.modal-overlay.center .modal-sheet{border-radius:20px;max-height:90vh}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════ SCREENS ══════ -->
+
+<!-- SETUP SCREEN -->
+<div id="screen-setup" class="screen active">
+  <div style="min-height:100vh;background:#1B3A5C;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:max(40px,env(safe-area-inset-top)) 20px 24px">
+    <div style="font-size:52px;margin-bottom:8px">🌿</div>
+    <div style="color:#fff;font-weight:800;font-size:28px;text-align:center;line-height:1.2">Holistic Wellness</div>
+    <div style="color:#B2DDD7;font-size:14px;margin-top:6px;text-align:center">Nutrition · Movement · Recovery</div>
+    <div style="background:#fff;border-radius:20px;padding:24px 20px;width:100%;max-width:340px;margin-top:28px">
+      <div style="font-weight:700;font-size:16px;color:#111827;margin-bottom:4px">Your Weight</div>
+      <div style="font-size:13px;color:#6B7280;margin-bottom:14px">Used to estimate workout calories burned.</div>
+      <div class="flex" style="gap:10px;margin-bottom:10px">
+        <input id="weight-input" type="number" value="125" style="flex:1;min-width:0;font-size:32px;font-weight:700;color:#1B3A5C;border:2px solid #B2DDD7;border-radius:10px;padding:10px 8px;text-align:center;outline:none"/>
+        <span style="font-size:16px;color:#6B7280;font-weight:600;flex-shrink:0">lbs</span>
+      </div>
+      <div id="setup-kg" style="font-size:12px;color:#6B7280;margin-bottom:20px;text-align:center">≈ 56.7 kg</div>
+      <button onclick="startApp()" style="width:100%;background:#2A7D6E;color:#fff;border:none;border-radius:12px;padding:14px 0;font-size:17px;font-weight:800">Let's Go →</button>
+    </div>
+    <div style="color:rgba(255,255,255,.35);font-size:11px;margin-top:16px;text-align:center">LDL Lowering · Strength · Recovery</div>
+  </div>
+</div>
+
+<!-- HOME SCREEN -->
+<div id="screen-home" class="screen">
+  <div class="safe-header" style="background:#1B3A5C;padding-bottom:14px;padding-left:16px;padding-right:16px">
+    <div style="color:#B2DDD7;font-size:11px;font-weight:600;letter-spacing:1px">HOLISTIC WELLNESS</div>
+    <div style="color:#fff;font-weight:800;font-size:22px;margin-top:2px">Good <span id="home-greeting"></span>! 👋</div>
+    <div id="home-date" style="color:rgba(255,255,255,.6);font-size:12px;margin-top:2px"></div>
+  </div>
+  <!-- Quick nutrition glance -->
+  <div id="home-nutrition-glance" style="background:#2A7D6E;padding:12px 16px;display:none">
+    <div style="color:rgba(255,255,255,.8);font-size:11px;font-weight:600;margin-bottom:6px">TODAY'S NUTRITION</div>
+    <div id="home-glance-bars" style="display:flex;gap:8px"></div>
+  </div>
+  <div style="padding:16px 14px 40px">
+    <!-- Module cards -->
+    <div style="font-weight:700;font-size:13px;color:#6B7280;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Choose Your Module</div>
+    <button onclick="showModule('workout')" style="width:100%;background:#fff;border:none;border-radius:16px;margin-bottom:12px;padding:0;text-align:left;box-shadow:0 2px 8px rgba(0,0,0,.07);overflow:hidden">
+      <div style="background:#D4614A;padding:14px 16px" class="flex spaceb">
+        <div style="color:#fff;font-weight:800;font-size:18px">💪 Workout Tracker</div>
+        <div style="color:rgba(255,255,255,.8);font-size:12px" id="home-workout-streak"></div>
+      </div>
+      <div style="padding:10px 16px" class="flex spaceb">
+        <div style="font-size:13px;color:#6B7280">7 workouts · timers · history</div>
+        <div id="home-workout-last" style="font-size:12px;color:#3A7D44;font-weight:600"></div>
+      </div>
+    </button>
+    <button onclick="showModule('nutrition')" style="width:100%;background:#fff;border:none;border-radius:16px;margin-bottom:12px;padding:0;text-align:left;box-shadow:0 2px 8px rgba(0,0,0,.07);overflow:hidden">
+      <div style="background:#2A7D6E;padding:14px 16px" class="flex spaceb">
+        <div style="color:#fff;font-weight:800;font-size:18px">🥗 Nutrition Tracker</div>
+        <div id="home-nutrition-status" style="color:rgba(255,255,255,.8);font-size:12px"></div>
+      </div>
+      <div style="padding:10px 16px" class="flex spaceb">
+        <div style="font-size:13px;color:#6B7280">Meals · macros · water · targets</div>
+        <div id="home-nutrition-protein" style="font-size:12px;font-weight:600"></div>
+      </div>
+    </button>
+    <button onclick="showModule('sleep')" style="width:100%;background:#fff;border:none;border-radius:16px;padding:0;text-align:left;box-shadow:0 2px 8px rgba(0,0,0,.07);overflow:hidden">
+      <div style="background:#7B6EA6;padding:14px 16px" class="flex spaceb">
+        <div style="color:#fff;font-weight:800;font-size:18px">😴 Sleep Tracker</div>
+        <div id="home-sleep-score" style="color:rgba(255,255,255,.8);font-size:12px"></div>
+      </div>
+      <div style="padding:10px 16px">
+        <div style="font-size:13px;color:#6B7280">Sleep quality · HRV · correlations · insights</div>
+      </div>
+    </button>
+
+    <!-- Today summary strip -->
+    <div id="home-today-summary" style="background:#EDF2F7;border-radius:14px;padding:14px 16px;margin-top:4px">
+      <div style="font-weight:700;font-size:13px;color:#1B3A5C;margin-bottom:10px">Today at a Glance</div>
+      <div id="home-summary-content" class="grid4"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── WORKOUT MODULE ─────────────────────────────────────────────────────── -->
+<div id="screen-workout-home" class="screen">
+  <div class="safe-header" style="background:#1B3A5C;padding-bottom:14px;padding-left:16px;padding-right:16px">
+    <div class="flex spaceb">
+      <div>
+        <div style="color:#B2DDD7;font-size:11px;font-weight:600;letter-spacing:1px">HOLISTIC WELLNESS</div>
+        <div style="color:#fff;font-weight:800;font-size:20px">Workout Tracker</div>
+      </div>
+      <div class="flex" style="gap:6px">
+        <button onclick="showScreen('screen-workout-history')" id="w-hist-btn" style="background:rgba(255,255,255,.12);border:none;border-radius:8px;color:#B2DDD7;padding:6px 8px;font-size:12px;font-weight:600">📊</button>
+        <button onclick="showModule('nutrition')" style="background:rgba(255,255,255,.15);border:none;border-radius:8px;color:rgba(255,255,255,.9);padding:6px 9px;font-size:15px;font-weight:600;cursor:pointer" title="Nutrition Tracker">🥗</button>
+<button onclick="showModule('sleep')" style="background:rgba(255,255,255,.15);border:none;border-radius:8px;color:rgba(255,255,255,.9);padding:6px 9px;font-size:15px;font-weight:600;cursor:pointer" title="Sleep Tracker">😴</button>
+        <button onclick="showScreen('screen-home')" style="background:rgba(255,255,255,.12);border:none;border-radius:8px;color:#B2DDD7;padding:6px 9px;font-size:15px;font-weight:600;cursor:pointer" title="Home">🏠</button>
+      </div>
+    </div>
+  </div>
+  <div id="w-today-banner" style="display:none;background:#EAF4EB;border-bottom:2px solid #B2DDD7;padding:8px 16px;font-size:13px;color:#3A7D44;font-weight:600;text-align:center"></div>
+  <div style="padding:14px 14px 32px">
+    <!-- Daily Steps -->
+    <div style="background:#fff;border-radius:14px;padding:12px 14px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.06)">
+      <div class="flex spaceb">
+        <div style="font-weight:700;font-size:14px;color:#1B3A5C">👟 Daily Steps</div>
+        <div id="w-steps-display" style="font-size:13px;font-weight:700;color:#2A7D6E"></div>
+      </div>
+      <div class="flex" style="gap:8px;margin-top:8px">
+        <input id="w-steps-input" type="number" placeholder="e.g. 8500" style="flex:1;min-width:0;border:1.5px solid #E5E7EB;border-radius:8px;padding:8px 10px;font-size:16px;outline:none"/>
+        <button onclick="saveSteps()" style="background:#2A7D6E;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer">Save</button>
+      </div>
+    </div>
+    <div style="font-size:12px;color:#6B7280;margin-bottom:10px">Your core workout rotation</div>
+    <div id="w-main-cards"></div>
+    <div style="font-weight:800;font-size:15px;color:#111827;margin-top:20px;margin-bottom:3px">Bonus Workouts</div>
+    <div style="font-size:12px;color:#6B7280;margin-bottom:10px">Use anytime for variety or extra movement</div>
+    <div id="w-bonus-cards"></div>
+    <div style="background:#EDF2F7;border-radius:14px;padding:14px 16px;margin-top:16px">
+      <div style="font-weight:700;font-size:14px;color:#1B3A5C;margin-bottom:10px">📊 Calorie Estimates</div>
+      <div style="font-size:11px;color:#6B7280;font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Weekly schedule</div>
+      <div id="w-cal-main"></div>
+      <div style="border-top:1px solid #E5E7EB;margin:10px 0"></div>
+      <div style="font-size:11px;color:#6B7280;font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Bonus workouts</div>
+      <div id="w-cal-bonus"></div>
+      <div style="border-top:1px solid #E5E7EB;margin-top:8px;padding-top:8px" class="flex spaceb">
+        <div style="font-size:13px;font-weight:700;color:#1B3A5C">Full week (scheduled)</div>
+        <div id="w-cal-total" style="font-size:14px;font-weight:800;color:#2A7D6E"></div>
+      </div>
+      <div style="font-size:11px;color:#6B7280;margin-top:6px">* Estimates based on MET values × your weight.</div>
+    </div>
+  </div>
+</div>
+<div id="screen-workout-session" class="screen">
+  <div id="ws-header" style="position:sticky;top:0;z-index:50;padding:max(12px,env(safe-area-inset-top)) 16px 12px;box-shadow:0 2px 8px rgba(0,0,0,.15)">
+    <div class="flex spaceb" style="margin-bottom:8px">
+      <div class="flex" style="gap:10px;flex:1">
+        <button onclick="backToWorkoutHome()" style="background:rgba(255,255,255,.2);border:none;border-radius:8px;color:#fff;padding:4px 10px;font-size:18px">←</button>
+        <div style="flex:1">
+          <div id="ws-label" style="color:#fff;font-weight:800;font-size:16px"></div>
+          <div id="ws-subtitle" style="color:rgba(255,255,255,.75);font-size:12px"></div>
+        </div>
+      </div>
+      <div style="text-align:right">
+        <div id="ws-timer" style="color:#fff;font-weight:700;font-size:15px">⏱ 0:00</div>
+        <div id="ws-cals" style="color:rgba(255,255,255,.8);font-size:12px"></div>
+      </div>
+    </div>
+    <div style="background:rgba(255,255,255,.25);border-radius:4px;height:6px">
+      <div id="ws-progress" style="background:#fff;border-radius:4px;height:6px;width:0%;transition:width .4s"></div>
+    </div>
+    <div id="ws-pct" style="color:rgba(255,255,255,.8);font-size:11px;margin-top:3px">0% complete</div>
+  </div>
+  <div id="ws-phases" style="padding:16px 14px 80px"></div>
+</div>
+<div id="screen-workout-history" class="screen">
+  <div class="safe-header" style="background:#1B3A5C;padding-bottom:16px;padding-left:16px;padding-right:16px">
+    <div class="flex" style="gap:10px;margin-bottom:14px">
+      <button onclick="showScreen('screen-workout-home')" style="background:rgba(255,255,255,.15);border:none;border-radius:8px;color:#fff;padding:4px 10px;font-size:18px">←</button>
+      <div style="color:#fff;font-weight:800;font-size:18px">💪 Workout History</div>
+    </div>
+    <div id="wh-stats" class="grid4"></div>
+  </div>
+  <div style="padding:16px 14px 40px">
+    <div style="font-weight:700;font-size:14px;color:#111827;margin-bottom:8px">30-Day Calendar</div>
+    <div style="background:#fff;border-radius:14px;padding:14px 12px;box-shadow:0 1px 4px rgba(0,0,0,.06);margin-bottom:20px">
+      <div id="wh-cal-labels" class="grid7" style="margin-bottom:4px"></div>
+      <div id="wh-cal-grid" class="grid7"></div>
+      <div style="font-size:10px;color:#6B7280;margin-top:10px">Lighter = 1 workout · Darker = more · <span style="color:#D4614A">●</span> Today</div>
+    </div>
+    <div style="font-weight:700;font-size:14px;color:#111827;margin-bottom:8px">Recent Sessions</div>
+    <div id="wh-sessions"></div>
+    <div id="wh-buttons" style="margin-top:12px"></div>
+  </div>
+</div>
+
+<!-- ── NUTRITION MODULE ───────────────────────────────────────────────────── -->
+<div id="screen-nutrition" class="screen">
+  <!-- Sticky macro dashboard -->
+  <div id="n-dashboard" style="position:sticky;top:0;z-index:50;background:#1B3A5C;padding-left:16px;padding-right:16px;padding-bottom:10px;padding-top:max(12px,env(safe-area-inset-top));box-shadow:0 2px 12px rgba(0,0,0,.2)">
+    <div class="flex spaceb" style="margin-bottom:10px">
+      <div class="flex" style="gap:8px">
+        <button onclick="showScreen('screen-home')" style="background:rgba(255,255,255,.15);border:none;border-radius:8px;color:#fff;padding:4px 9px;font-size:15px">🏠</button>
+        <div>
+          <div style="color:#fff;font-weight:800;font-size:16px">🥗 Nutrition</div>
+          <div id="n-date-label" style="color:rgba(255,255,255,.6);font-size:11px"></div>
+        </div>
+      </div>
+      <div class="flex" style="gap:6px">
+        <button onclick="showYesterday()" id="n-yesterday-btn" style="background:rgba(255,255,255,.12);border:none;border-radius:8px;color:#B2DDD7;padding:5px 7px;font-size:11px;font-weight:600">Yesterday</button>
+        <button onclick="showScreen('screen-nutrition-history')" style="background:rgba(255,255,255,.12);border:none;border-radius:8px;color:#B2DDD7;padding:5px 7px;font-size:11px;font-weight:600">📊</button>
+        <button onclick="showNutritionSettings()" style="background:rgba(255,255,255,.12);border:none;border-radius:8px;color:#B2DDD7;padding:5px 7px;font-size:11px;font-weight:600">⚙️</button>
+        <button onclick="showModule('workout')" style="background:rgba(255,255,255,.15);border:none;border-radius:8px;color:rgba(255,255,255,.9);padding:6px 9px;font-size:15px;font-weight:600;cursor:pointer" title="Workout Tracker">💪</button>
+<button onclick="showModule('sleep')" style="background:rgba(255,255,255,.15);border:none;border-radius:8px;color:rgba(255,255,255,.9);padding:6px 9px;font-size:15px;font-weight:600;cursor:pointer" title="Sleep Tracker">😴</button>
+      </div>
+    </div>
+    <!-- Macro bars -->
+    <div id="n-macro-bars" style="display:grid;gap:6px"></div>
+    <!-- Alert banner -->
+    <div id="n-alert-banner" style="display:none;border-radius:8px;padding:7px 10px;margin-top:8px;font-size:12px;font-weight:600;text-align:center"></div>
+  </div>
+
+  <div style="padding:12px 14px 100px">
+    <!-- Water + Supplements tracker -->
+    <div style="background:#fff;border-radius:14px;padding:12px 14px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.06)">
+      <!-- Levothyroxine -->
+      <div class="flex spaceb" style="margin-bottom:6px">
+        <div style="font-weight:700;font-size:14px;color:#1B3A5C">💊 Levothyroxine</div>
+        <div id="n-levo-status" style="font-size:13px;font-weight:700;color:#6B7280"></div>
+      </div>
+      <div class="flex" style="gap:8px;margin-bottom:14px">
+        <input id="n-levo-input" type="time" style="flex:1;min-width:0;border:1.5px solid #E5E7EB;border-radius:8px;padding:7px 10px;font-size:15px;outline:none;color:#1B3A5C"/>
+        <button onclick="saveLevo()" style="background:#7B6EA6;color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:13px;font-weight:700;cursor:pointer">Log Time</button>
+        <button onclick="clearLevo()" id="n-levo-clear" style="display:none;background:#F3F4F6;color:#6B7280;border:none;border-radius:8px;padding:7px 10px;font-size:13px;cursor:pointer">✕</button>
+      </div>
+      <div class="flex spaceb" style="margin-bottom:6px">
+        <div style="font-weight:700;font-size:14px;color:#1B3A5C">💧 Water</div>
+        <div id="n-water-count" style="font-size:13px;font-weight:700;color:#2A7D6E"></div>
+      </div>
+      <div id="n-water-glasses" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px"></div>
+      <!-- Gruns -->
+      <div class="flex spaceb" style="margin-bottom:6px">
+        <div style="font-weight:700;font-size:14px;color:#1B3A5C">Grüns Daily Greens</div>
+        <div id="n-gruns-status" style="font-size:13px;font-weight:700;color:#6B7280"></div>
+      </div>
+      <div id="n-gruns-icon" style="margin-bottom:12px"></div>
+      <!-- Nutrops -->
+      <div class="flex spaceb" style="margin-bottom:6px">
+        <div style="font-weight:700;font-size:14px;color:#1B3A5C">Nutrops Daily Pack</div>
+        <div id="n-nutrops-status" style="font-size:13px;font-weight:700;color:#6B7280"></div>
+      </div>
+      <div id="n-nutrops-icon" style="margin-bottom:12px"></div>
+      <!-- Creatine -->
+      <div class="flex spaceb" style="margin-bottom:6px">
+        <div style="font-weight:700;font-size:14px;color:#1B3A5C">Creatine</div>
+        <div id="n-creatine-count" style="font-size:13px;font-weight:700;color:#6B7280"></div>
+      </div>
+      <div id="n-creatine-gummies" style="display:flex;gap:6px"></div>
+    </div>
+
+    <!-- Meal slots -->
+    <div id="n-meal-slots"></div>
+
+    <!-- Recommendations -->
+    <div id="n-recommendations" style="display:none;background:#FDF6E3;border:1.5px solid #B8860B;border-radius:14px;padding:12px 14px;margin-top:4px">
+      <div style="font-weight:700;font-size:13px;color:#B8860B;margin-bottom:6px">💡 Smart Suggestions</div>
+      <div id="n-rec-content" style="font-size:13px;color:#111827;line-height:1.5"></div>
+    </div>
+  </div>
+</div>
+
+<!-- NUTRITION HISTORY -->
+<div id="screen-nutrition-history" class="screen">
+  <div class="safe-header" style="background:#2A7D6E;padding-bottom:16px;padding-left:16px;padding-right:16px">
+    <div class="flex" style="gap:10px;margin-bottom:14px">
+      <button onclick="showScreen('screen-nutrition')" style="background:rgba(255,255,255,.15);border:none;border-radius:8px;color:#fff;padding:4px 10px;font-size:18px">←</button>
+      <div style="color:#fff;font-weight:800;font-size:18px">🥗 Nutrition History</div>
+    </div>
+    <div id="nh-stats" class="grid4"></div>
+  </div>
+  <div style="padding:16px 14px 40px">
+    <div style="font-weight:700;font-size:14px;color:#111827;margin-bottom:8px">30-Day Calendar</div>
+    <div style="background:#fff;border-radius:14px;padding:14px 12px;box-shadow:0 1px 4px rgba(0,0,0,.06);margin-bottom:20px">
+      <div id="nh-cal-labels" class="grid7" style="margin-bottom:4px"></div>
+      <div id="nh-cal-grid" class="grid7"></div>
+      <div style="font-size:10px;color:#6B7280;margin-top:10px">🟢 Protein goal met · 🟡 Partial · ⬜ No data · <span style="color:#D4614A">●</span> Today</div>
+    </div>
+    <div style="font-weight:700;font-size:14px;color:#111827;margin-bottom:8px">Daily Log</div>
+    <div id="nh-days"></div>
+    <div id="nh-buttons" style="margin-top:12px"></div>
+  </div>
+</div>
+
+<!-- ── SLEEP MODULE ────────────────────────────────────────────────────────── -->
+<div id="screen-sleep" class="screen">
+  <div class="safe-header" style="background:#7B6EA6;padding-bottom:14px;padding-left:16px;padding-right:16px">
+    <div class="flex spaceb">
+      <div>
+        <div style="color:#E9D5FF;font-size:11px;font-weight:600;letter-spacing:1px">HOLISTIC WELLNESS</div>
+        <div style="color:#fff;font-weight:800;font-size:20px">😴 Sleep Tracker</div>
+      </div>
+      <div class="flex" style="gap:6px">
+        <button onclick="showScreen('screen-sleep-history')" style="background:rgba(255,255,255,.15);border:none;border-radius:8px;color:#E9D5FF;padding:6px 8px;font-size:12px;font-weight:600">📊</button>
+        <button onclick="showModule('workout')" style="background:rgba(255,255,255,.15);border:none;border-radius:8px;color:rgba(255,255,255,.9);padding:6px 9px;font-size:15px;font-weight:600;cursor:pointer" title="Workout Tracker">💪</button>
+<button onclick="showModule('nutrition')" style="background:rgba(255,255,255,.15);border:none;border-radius:8px;color:rgba(255,255,255,.9);padding:6px 9px;font-size:15px;font-weight:600;cursor:pointer" title="Nutrition Tracker">🥗</button>
+        <button onclick="showScreen('screen-home')" style="background:rgba(255,255,255,.15);border:none;border-radius:8px;color:rgba(255,255,255,.9);padding:6px 9px;font-size:15px;font-weight:600;cursor:pointer">🏠</button>
+      </div>
+    </div>
+  </div>
+  <!-- Month calendar strip -->
+  <div style="background:#6B5FA0;padding:10px 14px">
+    <div class="flex spaceb" style="margin-bottom:6px">
+      <div id="sl-month-label" style="color:#fff;font-weight:700;font-size:13px"></div>
+      <div id="sl-today-score" style="font-size:12px;font-weight:700"></div>
+    </div>
+    <div id="sl-month-strip" style="display:flex;gap:4px;overflow-x:auto;padding-bottom:4px"></div>
+  </div>
+  <div style="padding:12px 14px 100px">
+    <!-- Sleep Quality Score card -->
+    <div id="sl-score-card" style="display:none;border-radius:14px;padding:16px;margin-bottom:12px;text-align:center">
+      <div id="sl-score-label" style="font-size:12px;font-weight:600;opacity:.8;margin-bottom:4px">SLEEP QUALITY SCORE</div>
+      <div id="sl-score-value" style="font-size:52px;font-weight:800;line-height:1"></div>
+      <div id="sl-score-desc" style="font-size:13px;margin-top:4px;opacity:.85"></div>
+      <div id="sl-score-breakdown" style="margin-top:10px;font-size:11px;opacity:.75;line-height:1.6"></div>
+    </div>
+    <!-- Auto-pulled summary -->
+    <div style="background:#F0EEF8;border-radius:12px;padding:10px 12px;margin-bottom:12px">
+      <div style="font-weight:700;font-size:12px;color:#7B6EA6;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">📥 Auto-pulled from today</div>
+      <div id="sl-autopull" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px"></div>
+    </div>
+    <!-- Evening entry form -->
+    <div style="background:#fff;border-radius:14px;padding:14px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.06)">
+      <div style="font-weight:700;font-size:14px;color:#1B3A5C;margin-bottom:12px">🌙 Evening Entry</div>
+      <!-- Dinner time -->
+      <div style="margin-bottom:12px">
+        <div style="font-size:12px;color:#6B7280;margin-bottom:4px;font-weight:600">🍽️ Dinner Time</div>
+        <input id="sl-dinner-time" type="time" style="width:100%;border:1.5px solid #E5E7EB;border-radius:8px;padding:8px 10px;font-size:15px;outline:none"/>
+      </div>
+      <!-- Caffeine after noon -->
+      <div style="margin-bottom:12px">
+        <div style="font-size:12px;color:#6B7280;margin-bottom:6px;font-weight:600">☕ Caffeine after noon?</div>
+        <div class="flex" style="gap:8px">
+          <button id="sl-caff-y" onclick="setSleepToggle('caffeine',true)" style="flex:1;padding:8px 0;border-radius:8px;border:1.5px solid #E5E7EB;background:#fff;font-size:14px;font-weight:700;cursor:pointer">Yes</button>
+          <button id="sl-caff-n" onclick="setSleepToggle('caffeine',false)" style="flex:1;padding:8px 0;border-radius:8px;border:1.5px solid #E5E7EB;background:#fff;font-size:14px;font-weight:700;cursor:pointer">No</button>
+        </div>
+      </div>
+      <!-- Wine -->
+      <div style="margin-bottom:12px">
+        <div style="font-size:12px;color:#6B7280;margin-bottom:6px;font-weight:600">🍷 Wine?</div>
+        <div class="flex" style="gap:8px;margin-bottom:8px">
+          <button id="sl-wine-y" onclick="setSleepToggle('wine',true)" style="flex:1;padding:8px 0;border-radius:8px;border:1.5px solid #E5E7EB;background:#fff;font-size:14px;font-weight:700;cursor:pointer">Yes</button>
+          <button id="sl-wine-n" onclick="setSleepToggle('wine',false)" style="flex:1;padding:8px 0;border-radius:8px;border:1.5px solid #E5E7EB;background:#fff;font-size:14px;font-weight:700;cursor:pointer">No</button>
+        </div>
+        <div id="sl-wine-detail" style="display:none;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div><div style="font-size:11px;color:#6B7280;margin-bottom:3px"># of glasses</div>
+          <input id="sl-wine-glasses" type="number" min="0" max="5" step="0.5" placeholder="0" style="width:100%;border:1.5px solid #E5E7EB;border-radius:8px;padding:8px 10px;font-size:14px;outline:none"/></div>
+          <div><div style="font-size:11px;color:#6B7280;margin-bottom:3px">Time of last glass</div>
+          <input id="sl-wine-time" type="time" style="width:100%;border:1.5px solid #E5E7EB;border-radius:8px;padding:8px 10px;font-size:14px;outline:none"/></div>
+        </div>
+      </div>
+      <!-- Feals Relax Gummy -->
+      <div style="margin-bottom:12px">
+        <div style="font-size:12px;color:#6B7280;margin-bottom:6px;font-weight:600">😴 Feals Relax Gummy?</div>
+        <div class="flex" style="gap:8px;margin-bottom:8px">
+          <button id="sl-feals-y" onclick="setSleepToggle('feals',true)" style="flex:1;padding:8px 0;border-radius:8px;border:1.5px solid #E5E7EB;background:#fff;font-size:14px;font-weight:700;cursor:pointer">Yes</button>
+          <button id="sl-feals-n" onclick="setSleepToggle('feals',false)" style="flex:1;padding:8px 0;border-radius:8px;border:1.5px solid #E5E7EB;background:#fff;font-size:14px;font-weight:700;cursor:pointer">No</button>
+        </div>
+        <div id="sl-feals-detail" style="display:none">
+          <div style="font-size:11px;color:#6B7280;margin-bottom:4px">Dose</div>
+          <div class="flex" style="gap:8px">
+            <button id="sl-feals-half" onclick="setSleepFeals('half')" style="flex:1;padding:7px 0;border-radius:8px;border:1.5px solid #E5E7EB;background:#fff;font-size:13px;font-weight:600;cursor:pointer">½ Gummy</button>
+            <button id="sl-feals-full" onclick="setSleepFeals('full')" style="flex:1;padding:7px 0;border-radius:8px;border:1.5px solid #E5E7EB;background:#fff;font-size:13px;font-weight:600;cursor:pointer">Full Gummy</button>
+          </div>
+        </div>
+      </div>
+      <!-- Sliders: Stress, Mood, Energy, Mental Chatter -->
+      <div id="sl-sliders"></div>
+      <!-- Gratitude + Prayer -->
+      <div style="margin-bottom:12px">
+        <div style="font-size:12px;color:#6B7280;margin-bottom:6px;font-weight:600">🙏 Mindfulness</div>
+        <div class="flex" style="gap:8px">
+          <div style="flex:1">
+            <div style="font-size:11px;color:#6B7280;margin-bottom:4px">Gratitude?</div>
+            <div class="flex" style="gap:6px">
+              <button id="sl-grat-y" onclick="setSleepToggle('gratitude',true)" style="flex:1;padding:7px 0;border-radius:8px;border:1.5px solid #E5E7EB;background:#fff;font-size:13px;font-weight:600;cursor:pointer">Yes</button>
+              <button id="sl-grat-n" onclick="setSleepToggle('gratitude',false)" style="flex:1;padding:7px 0;border-radius:8px;border:1.5px solid #E5E7EB;background:#fff;font-size:13px;font-weight:600;cursor:pointer">No</button>
+            </div>
+          </div>
+          <div style="flex:1">
+            <div style="font-size:11px;color:#6B7280;margin-bottom:4px">Prayer/Devotional?</div>
+            <div class="flex" style="gap:6px">
+              <button id="sl-pray-y" onclick="setSleepToggle('prayer',true)" style="flex:1;padding:7px 0;border-radius:8px;border:1.5px solid #E5E7EB;background:#fff;font-size:13px;font-weight:600;cursor:pointer">Yes</button>
+              <button id="sl-pray-n" onclick="setSleepToggle('prayer',false)" style="flex:1;padding:7px 0;border-radius:8px;border:1.5px solid #E5E7EB;background:#fff;font-size:13px;font-weight:600;cursor:pointer">No</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Notes -->
+      <div style="margin-bottom:4px">
+        <div style="font-size:12px;color:#6B7280;margin-bottom:4px;font-weight:600">📝 Notes</div>
+        <textarea id="sl-notes" rows="3" placeholder="Anything notable about today or tonight..." style="width:100%;border:1.5px solid #E5E7EB;border-radius:8px;padding:8px 10px;font-size:13px;outline:none;resize:none;line-height:1.5"></textarea>
+      </div>
+      <button onclick="saveSleepEvening()" style="width:100%;background:#7B6EA6;color:#fff;border:none;border-radius:10px;padding:12px 0;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px">💾 Save Evening Entry</button>
+    </div>
+    <!-- Morning entry form -->
+    <div style="background:#fff;border-radius:14px;padding:14px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.06)">
+      <div style="font-weight:700;font-size:14px;color:#1B3A5C;margin-bottom:12px">☀️ Morning Entry — Apple Health Data</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+        <div><div style="font-size:11px;color:#6B7280;margin-bottom:3px">Apple Sleep Score</div>
+        <input id="sl-apple-score" type="number" min="0" max="100" placeholder="e.g. 87" style="width:100%;border:1.5px solid #E5E7EB;border-radius:8px;padding:8px 10px;font-size:15px;font-weight:700;outline:none"/></div>
+        <div><div style="font-size:11px;color:#6B7280;margin-bottom:3px">Refreshed? (1–5)</div>
+        <div id="sl-refreshed-slider" class="sl-slider-container"></div></div>
+        <div><div style="font-size:11px;color:#6B7280;margin-bottom:3px">Bedtime</div>
+        <input id="sl-bedtime" type="time" style="width:100%;border:1.5px solid #E5E7EB;border-radius:8px;padding:8px 10px;font-size:14px;outline:none"/></div>
+        <div><div style="font-size:11px;color:#6B7280;margin-bottom:3px">Wake Time</div>
+        <input id="sl-wake-time" type="time" style="width:100%;border:1.5px solid #E5E7EB;border-radius:8px;padding:8px 10px;font-size:14px;outline:none"/></div>
+        <div><div style="font-size:11px;color:#6B7280;margin-bottom:3px">Total Sleep (hrs)</div>
+        <input id="sl-total-sleep" type="number" step="0.1" placeholder="e.g. 7.5" style="width:100%;border:1.5px solid #E5E7EB;border-radius:8px;padding:8px 10px;font-size:14px;outline:none"/></div>
+        <div><div style="font-size:11px;color:#6B7280;margin-bottom:3px">REM (hrs)</div>
+        <input id="sl-rem" type="number" step="0.1" placeholder="e.g. 1.5" style="width:100%;border:1.5px solid #E5E7EB;border-radius:8px;padding:8px 10px;font-size:14px;outline:none"/></div>
+        <div><div style="font-size:11px;color:#6B7280;margin-bottom:3px">Core Sleep (hrs)</div>
+        <input id="sl-core" type="number" step="0.1" placeholder="e.g. 4.2" style="width:100%;border:1.5px solid #E5E7EB;border-radius:8px;padding:8px 10px;font-size:14px;outline:none"/></div>
+        <div><div style="font-size:11px;color:#6B7280;margin-bottom:3px">Deep Sleep (hrs)</div>
+        <input id="sl-deep" type="number" step="0.1" placeholder="e.g. 0.8" style="width:100%;border:1.5px solid #E5E7EB;border-radius:8px;padding:8px 10px;font-size:14px;outline:none"/></div>
+        <div><div style="font-size:11px;color:#6B7280;margin-bottom:3px">Resting HR (bpm)</div>
+        <input id="sl-hr" type="number" placeholder="e.g. 62" style="width:100%;border:1.5px solid #E5E7EB;border-radius:8px;padding:8px 10px;font-size:14px;outline:none"/></div>
+        <div><div style="font-size:11px;color:#6B7280;margin-bottom:3px">HRV (ms)</div>
+        <input id="sl-hrv" type="number" placeholder="e.g. 38" style="width:100%;border:1.5px solid #E5E7EB;border-radius:8px;padding:8px 10px;font-size:14px;outline:none"/></div>
+        <div><div style="font-size:11px;color:#6B7280;margin-bottom:3px">Respiratory Rate</div>
+        <input id="sl-resp" type="number" step="0.1" placeholder="e.g. 17.5" style="width:100%;border:1.5px solid #E5E7EB;border-radius:8px;padding:8px 10px;font-size:14px;outline:none"/></div>
+        <div><div style="font-size:11px;color:#6B7280;margin-bottom:3px">Wake-ups (#)</div>
+        <input id="sl-wakeups" type="number" placeholder="e.g. 3" style="width:100%;border:1.5px solid #E5E7EB;border-radius:8px;padding:8px 10px;font-size:14px;outline:none"/></div>
+        <div><div style="font-size:11px;color:#6B7280;margin-bottom:3px">Bathroom Trips (#)</div>
+        <input id="sl-bathroom" type="number" placeholder="e.g. 1" style="width:100%;border:1.5px solid #E5E7EB;border-radius:8px;padding:8px 10px;font-size:14px;outline:none"/></div>
+      </div>
+      <button onclick="saveSleepMorning()" style="width:100%;background:#1B3A5C;color:#fff;border:none;border-radius:10px;padding:12px 0;font-size:15px;font-weight:700;cursor:pointer">☀️ Save Morning Data & Calculate Score</button>
+    </div>
+  </div>
+</div>
+
+<!-- SLEEP HISTORY / DASHBOARD -->
+<div id="screen-sleep-history" class="screen">
+  <div class="safe-header" style="background:#7B6EA6;padding-bottom:16px;padding-left:16px;padding-right:16px">
+    <div class="flex" style="gap:10px;margin-bottom:14px">
+      <button onclick="showScreen('screen-sleep')" style="background:rgba(255,255,255,.15);border:none;border-radius:8px;color:#fff;padding:4px 10px;font-size:18px">←</button>
+      <div style="color:#fff;font-weight:800;font-size:18px">😴 Sleep Dashboard</div>
+    </div>
+    <div id="sh-stats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px"></div>
+  </div>
+  <div style="padding:14px 14px 40px">
+    <!-- Charts -->
+    <div style="font-weight:700;font-size:14px;color:#111827;margin-bottom:8px">📈 Sleep Score — 30 Days</div>
+    <div style="background:#fff;border-radius:14px;padding:14px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.06)">
+      <canvas id="sh-score-chart" height="120"></canvas>
+    </div>
+    <div style="font-weight:700;font-size:14px;color:#111827;margin-bottom:8px">💜 HRV Trend</div>
+    <div style="background:#fff;border-radius:14px;padding:14px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.06)">
+      <canvas id="sh-hrv-chart" height="100"></canvas>
+    </div>
+    <div style="font-weight:700;font-size:14px;color:#111827;margin-bottom:8px">🫀 Sleep Stages</div>
+    <div style="background:#fff;border-radius:14px;padding:14px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.06)">
+      <canvas id="sh-stages-chart" height="120"></canvas>
+    </div>
+    <div style="font-weight:700;font-size:14px;color:#111827;margin-bottom:8px">🔍 Key Correlations</div>
+    <div id="sh-correlations" style="background:#fff;border-radius:14px;padding:14px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.06)"></div>
+    <div style="font-weight:700;font-size:14px;color:#111827;margin-bottom:8px">💡 Pattern Insights</div>
+    <div id="sh-insights" style="background:#F0EEF8;border-radius:14px;padding:14px;margin-bottom:14px"></div>
+    <div id="sh-export-btn" style="margin-top:4px"></div>
+  </div>
+</div>
+
+<!-- ── MODALS ──────────────────────────────────────────────────────────────── -->
+
+<!-- Food browser modal -->
+<div id="modal-food" class="modal-overlay">
+  <div class="modal-sheet">
+    <div class="flex spaceb" style="margin-bottom:14px">
+      <div style="font-weight:800;font-size:17px;color:#1B3A5C">Add Food</div>
+      <button onclick="closeModal('modal-food')" style="background:#F3F4F6;border:none;border-radius:8px;padding:6px 10px;font-size:13px;color:#6B7280">✕ Close</button>
+    </div>
+    <!-- Tabs -->
+    <div class="flex" style="gap:6px;margin-bottom:14px">
+      <button onclick="switchFoodTab('plan')" id="tab-plan" style="flex:1;padding:8px 0;border:none;border-radius:8px;font-size:13px;font-weight:700;background:#2A7D6E;color:#fff">From Your Plan</button>
+      <button onclick="switchFoodTab('alpha')" id="tab-alpha" style="flex:1;padding:8px 0;border:none;border-radius:8px;font-size:13px;font-weight:700;background:#E5E7EB;color:#6B7280">All Recipes A–Z</button>
+      <button onclick="switchFoodTab('manual')" id="tab-manual" style="flex:1;padding:8px 0;border:none;border-radius:8px;font-size:13px;font-weight:700;background:#E5E7EB;color:#6B7280">Manual Entry</button>
+    </div>
+    <div id="food-tab-plan" class="food-tab"></div>
+    <div id="food-tab-alpha" class="food-tab" style="display:none"></div>
+    <div id="food-tab-manual" class="food-tab" style="display:none">
+
+      <!-- AI Estimator -->
+      <div style="background:#EDF2F7;border-radius:12px;padding:12px 14px;margin-bottom:14px">
+        <div style="font-weight:700;font-size:14px;color:#1B3A5C;margin-bottom:4px">✨ Smart Macro Estimator</div>
+        <div style="font-size:12px;color:#6B7280;margin-bottom:10px">Describe any food in plain English — the estimator will calculate macros instantly, no internet needed.</div>
+        <div style="display:flex;gap:8px;margin-bottom:8px">
+          <input id="ai-food-input" placeholder='e.g. "6oz grilled chicken and a cup of rice"' style="flex:1;min-width:0;border:1.5px solid #B2DDD7;border-radius:10px;padding:9px 12px;font-size:13px;outline:none;background:#fff"/>
+        </div>
+        <button onclick="estimateMacrosWithAI()" id="ai-estimate-btn" style="width:100%;background:#1B3A5C;color:#fff;border:none;border-radius:10px;padding:10px 0;font-size:14px;font-weight:700;cursor:pointer">✨ Estimate Macros</button>
+        <div id="ai-estimator-status" style="display:none;margin-top:8px;padding:8px 10px;border-radius:8px;font-size:12px;text-align:center"></div>
+      </div>
+
+      <!-- Divider -->
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+        <div style="flex:1;height:1px;background:#E5E7EB"></div>
+        <div style="font-size:11px;color:#9CA3AF;font-weight:600">OR ENTER MANUALLY</div>
+        <div style="flex:1;height:1px;background:#E5E7EB"></div>
+      </div>
+
+      <!-- Manual fields -->
+      <div style="font-size:12px;color:#6B7280;margin-bottom:10px">All fields optional except name. AI results appear here — review and adjust before adding.</div>
+      <input id="manual-name" placeholder="Food name *" style="width:100%;border:1.5px solid #E5E7EB;border-radius:10px;padding:10px 12px;font-size:14px;margin-bottom:8px;outline:none"/>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+        <div><div style="font-size:11px;color:#6B7280;margin-bottom:3px">Calories</div><input id="manual-cal" type="number" placeholder="e.g. 350" style="width:100%;border:1.5px solid #E5E7EB;border-radius:8px;padding:8px 10px;font-size:14px;outline:none"/></div>
+        <div><div style="font-size:11px;color:#6B7280;margin-bottom:3px">Protein (g)</div><input id="manual-protein" type="number" placeholder="e.g. 30" style="width:100%;border:1.5px solid #E5E7EB;border-radius:8px;padding:8px 10px;font-size:14px;outline:none"/></div>
+        <div><div style="font-size:11px;color:#6B7280;margin-bottom:3px">Carbs (g)</div><input id="manual-carbs" type="number" placeholder="e.g. 45" style="width:100%;border:1.5px solid #E5E7EB;border-radius:8px;padding:8px 10px;font-size:14px;outline:none"/></div>
+        <div><div style="font-size:11px;color:#6B7280;margin-bottom:3px">Fat (g)</div><input id="manual-fat" type="number" placeholder="e.g. 12" style="width:100%;border:1.5px solid #E5E7EB;border-radius:8px;padding:8px 10px;font-size:14px;outline:none"/></div>
+        <div><div style="font-size:11px;color:#6B7280;margin-bottom:3px">Fiber (g)</div><input id="manual-fiber" type="number" placeholder="e.g. 5" style="width:100%;border:1.5px solid #E5E7EB;border-radius:8px;padding:8px 10px;font-size:14px;outline:none"/></div>
+      </div>
+      <button onclick="addManualFood()" style="width:100%;background:#2A7D6E;color:#fff;border:none;border-radius:10px;padding:12px 0;font-size:15px;font-weight:700;margin-top:4px">Add to Log</button>
+
+      <!-- Cronometer fallback -->
+      <div style="margin-top:14px;padding:10px 12px;background:#F9FAFB;border:1px solid #E5E7EB;border-radius:10px;text-align:center">
+        <div style="font-size:12px;color:#6B7280;margin-bottom:6px">Want verified database values for packaged foods or restaurants?</div>
+        <button onclick="window.open('https://cronometer.com','_blank')" style="background:#fff;border:1.5px solid #2A7D6E;color:#2A7D6E;border-radius:8px;padding:7px 16px;font-size:13px;font-weight:700;cursor:pointer">🔗 Open Cronometer</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Nutrition settings modal -->
+<div id="modal-nutrition-settings" class="modal-overlay center">
+  <div class="modal-sheet">
+    <div class="flex spaceb" style="margin-bottom:16px">
+      <div style="font-weight:800;font-size:17px;color:#1B3A5C">⚙️ Daily Targets</div>
+      <button onclick="closeModal('modal-nutrition-settings')" style="background:#F3F4F6;border:none;border-radius:8px;padding:6px 10px;font-size:13px;color:#6B7280">✕</button>
+    </div>
+    <div id="settings-fields" style="display:grid;gap:10px"></div>
+    <button onclick="saveNutritionSettings()" style="width:100%;background:#2A7D6E;color:#fff;border:none;border-radius:10px;padding:12px 0;font-size:15px;font-weight:700;margin-top:16px">Save Targets</button>
+    <button onclick="resetNutritionSettings()" style="width:100%;background:none;border:none;color:#6B7280;font-size:13px;padding:8px 0;margin-top:4px">Reset to plan defaults</button>
+  </div>
+</div>
+
+<!-- Workout export modal -->
+<div id="modal-workout-export" style="display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.55);align-items:center;justify-content:center;padding:24px">
+  <div style="background:#fff;border-radius:20px;padding:24px 20px;width:100%;max-width:340px;box-shadow:0 8px 32px rgba(0,0,0,.2)">
+    <div style="font-size:36px;text-align:center">💪</div>
+    <div style="font-weight:800;font-size:19px;color:#1B3A5C;text-align:center;margin-top:8px">Save Your Workout Progress!</div>
+    <div id="we-modal-month" style="font-size:13px;color:#6B7280;text-align:center;margin-top:8px;line-height:1.5"></div>
+    <div id="we-modal-stats" class="grid2" style="background:#EDF2F7;border-radius:12px;padding:12px 14px;margin-top:16px"></div>
+    <button onclick="doWorkoutExport(true)" style="width:100%;background:#D4614A;color:#fff;border:none;border-radius:12px;padding:13px 0;font-size:16px;font-weight:800;margin-top:18px">⬇️ Download CSV</button>
+    <button onclick="closeWorkoutModal()" style="width:100%;background:none;color:#6B7280;border:none;padding:10px 0;font-size:13px;margin-top:6px">Remind me later</button>
+  </div>
+</div>
+
+<!-- Nutrition export modal -->
+<div id="modal-nutrition-export" style="display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.55);align-items:center;justify-content:center;padding:24px">
+  <div style="background:#fff;border-radius:20px;padding:24px 20px;width:100%;max-width:340px;box-shadow:0 8px 32px rgba(0,0,0,.2)">
+    <div style="font-size:36px;text-align:center">🥗</div>
+    <div style="font-weight:800;font-size:19px;color:#1B3A5C;text-align:center;margin-top:8px">Save Your Nutrition Progress!</div>
+    <div id="ne-modal-month" style="font-size:13px;color:#6B7280;text-align:center;margin-top:8px;line-height:1.5"></div>
+    <div id="ne-modal-stats" class="grid2" style="background:#E6F4F1;border-radius:12px;padding:12px 14px;margin-top:16px"></div>
+    <button onclick="doNutritionExport(true)" style="width:100%;background:#2A7D6E;color:#fff;border:none;border-radius:12px;padding:13px 0;font-size:16px;font-weight:800;margin-top:18px">⬇️ Download CSV</button>
+    <button onclick="closeNutritionModal()" style="width:100%;background:none;color:#6B7280;border:none;padding:10px 0;font-size:13px;margin-top:6px">Remind me later</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════ CONSTANTS ═══════
+
+const C = {
+  teal:"#2A7D6E",tealLight:"#E6F4F1",tealMid:"#B2DDD7",
+  coral:"#D4614A",coralLight:"#FDECEA",
+  navy:"#1B3A5C",navyLight:"#EDF2F7",
+  green:"#3A7D44",greenLight:"#EAF4EB",
+  gold:"#B8860B",goldLight:"#FDF6E3",
+  lavender:"#7B6EA6",lavLight:"#F0EEF8",
+  gray:"#6B7280",grayLight:"#F3F4F6",grayMid:"#E5E7EB",
+  white:"#FFFFFF",dark:"#111827",
+  amber:"#D97706",amberLight:"#FEF3C7",
+  red:"#DC2626",redLight:"#FEE2E2"
+};
+
+// ═══════════════════════════════════════════════════════════ FOOD DATABASE ═══
+
+const FOOD_DB = {
+  breakfast:[
+    {name:"Greek Yogurt Berry Power Bowl",      cal:310,protein:23,carbs:35,fat:8, fiber:5, ref:"Recipe 1"},
+    {name:"LDL-Lowering Protein Smoothie",      cal:320,protein:25,carbs:38,fat:8, fiber:7, ref:"Recipe 3"},
+    {name:"Scrambled Eggs w/ Avocado & Orange", cal:380,protein:22,carbs:28,fat:20,fiber:5, ref:"Recipe 5"},
+    {name:"LDL-Fighting Overnight Oats",        cal:370,protein:15,carbs:52,fat:11,fiber:7, ref:"Recipe 8"},
+    {name:"Saturday Veggie Scramble",           cal:310,protein:20,carbs:18,fat:18,fiber:4, ref:"Recipe 10"},
+  ],
+  lunch:[
+    {name:"Mediterranean Bento",                cal:420,protein:24,carbs:38,fat:18,fiber:7, ref:"Bento"},
+    {name:"Ahi Tuna Bento",                     cal:380,protein:35,carbs:28,fat:12,fiber:5, ref:"Bento"},
+    {name:"Lentil Bento",                       cal:400,protein:20,carbs:52,fat:10,fiber:12,ref:"Bento"},
+    {name:"Protein Snack Bento",                cal:350,protein:28,carbs:22,fat:16,fiber:4, ref:"Bento"},
+  ],
+  dinner:[
+    {name:"Sheet Pan Salmon + Broccoli + Sweet Potato",cal:490,protein:38,carbs:38,fat:16,fiber:7, ref:"Recipe 2"},
+    {name:"Skirt Steak w/ Chimichurri + Veg",   cal:480,protein:42,carbs:18,fat:24,fiber:4, ref:"Recipe 9"},
+    {name:"Mediterranean Sheet Pan Salmon",     cal:510,protein:36,carbs:28,fat:26,fiber:5, ref:"Recipe 13"},
+    {name:"Shrimp Stir Fry with Vegetables",    cal:380,protein:34,carbs:32,fat:10,fiber:5, ref:"Recipe 4"},
+    {name:"Chicken Taco Bowl",                  cal:450,protein:36,carbs:34,fat:16,fiber:6, ref:"Recipe 6"},
+    {name:"Pan-Seared Salmon w/ Mushrooms",     cal:420,protein:36,carbs:14,fat:22,fiber:4, ref:"Recipe 7"},
+    {name:"Shrimp Tacos (2 tacos)",             cal:410,protein:30,carbs:38,fat:12,fiber:4, ref:"Recipe 11"},
+    {name:"Simple Lentil Soup",                 cal:340,protein:18,carbs:48,fat:6, fiber:14,ref:"Recipe 12"},
+    {name:"Blackened Salmon w/ Avocado Salsa",  cal:440,protein:36,carbs:16,fat:24,fiber:5, ref:"Recipe 14"},
+    {name:"Rotisserie Chicken + Salad",         cal:420,protein:38,carbs:18,fat:20,fiber:4, ref:"Flex"},
+    {name:"Eggs any style + Toast + Fruit",     cal:380,protein:22,carbs:36,fat:16,fiber:3, ref:"Flex"},
+  ],
+  snacks:[
+    {name:"1 oz Nuts + Piece of Fruit",         cal:200,protein:5, carbs:22,fat:14,fiber:3, ref:"Snack"},
+    {name:"Post-Workout Protein Shake",         cal:160,protein:25,carbs:8, fat:3, fiber:1, ref:"Post-Workout"},
+    {name:"Greek Yogurt (plain, 6oz)",          cal:100,protein:17,carbs:6, fat:0, fiber:0, ref:"Snack"},
+    {name:"Hard-Boiled Egg",                    cal:70, protein:6, carbs:1, fat:5, fiber:0, ref:"Snack"},
+    {name:"Ahi Tuna Packet + Hummus + Veggies", cal:310,protein:30,carbs:20,fat:10,fiber:5, ref:"Flex Snack"},
+    {name:"Sesame-Crusted Seared Ahi Tuna",     cal:310,protein:38,carbs:6, fat:14,fiber:1, ref:"Recipe 2b"},
+  ],
+  other:[
+    {name:"Lemon Herb Dressing (2 tbsp)",       cal:80, protein:0, carbs:2, fat:8, fiber:0, ref:"Dressing"},
+    {name:"Sesame Ginger Vinaigrette (2 tbsp)", cal:90, protein:1, carbs:4, fat:8, fiber:0, ref:"Dressing"},
+    {name:"Creamy Avocado Lime (2 tbsp)",       cal:70, protein:0, carbs:3, fat:7, fiber:1, ref:"Dressing"},
+    {name:"Coffee with Oat Milk",               cal:40, protein:1, carbs:6, fat:1, fiber:0, ref:"Drink"},
+    {name:"Wine (5oz glass)",                   cal:125,protein:0, carbs:4, fat:0, fiber:0, ref:"Drink"},
+    {name:"Protein Bar",                        cal:220,protein:20,carbs:24,fat:8, fiber:3, ref:"Snack"},
+  ]
+};
+
+// All foods flat for A-Z view
+const ALL_FOODS_ALPHA = Object.values(FOOD_DB).flat().sort((a,b)=>a.name.localeCompare(b.name));
+
+// ═══════════════════════════════════════════════════════════ WORKOUT DATA ════
+
+const WORKOUTS = {
+  gym:{label:"💪 Gym Full Body",subtitle:"Sun / Tue / Sat — 45 min",color:C.coral,colorLight:C.coralLight,phases:[
+    {name:"🟠 Phase 1 — Warm-Up",duration:"5 min",exercises:[
+      {name:"Backwards Treadmill Walk",type:"timed",seconds:180,met:3.5,note:"1.5–2.5 mph, hold rails lightly. Activates glutes, opens hip flexors."},
+      {name:"Kneeling Twist Stretch & Balance",type:"reps",sets:1,reps:"5 each side",met:2.5,note:"Lunge position, hands behind head. Rotate toward front knee, hold 2 sec."},
+      {name:"Downward Dog to Low Lunge Flow",type:"reps",sets:1,reps:"4 each side",met:2.5,note:"From Down Dog, step one foot forward into Low Lunge. Hold 2 sec, alternate."},
+      {name:"Thread the Needle",type:"reps",sets:1,reps:"5–8 breaths each side",met:2.0,note:"From tabletop, sweep arm up then slide under opposite arm to mat."},
+      {name:"Planks",type:"timed",sets:3,seconds:30,restSeconds:20,met:4.0,note:"Forearms down, body rigid head to heels. Modify: knees down."}
+    ]},
+    {name:"🟢 Phase 2 — Lower Body",duration:"12–15 min",exercises:[
+      {name:"Leg Press (Kaiser or machine)",type:"strength",sets:3,reps:"12",met:5.0,note:"Feet shoulder-width on platform. Press away, lower slowly 3 counts."},
+      {name:"Step-Ups",type:"strength",sets:3,reps:"10 each leg",met:5.0,note:"Step up, drive knee. Hold dumbbells for added challenge."},
+      {name:"Dumbbell Alternating Reverse Lunge",type:"strength",sets:3,reps:"10 each leg",met:4.5,note:"Step back, lower rear knee. Push off front foot to return."},
+      {name:"Kettlebell Squat",type:"strength",sets:3,reps:"12",met:5.0,note:"Hold KB at chest. Feet slightly wider, toes out. Chest tall."}
+    ]},
+    {name:"🔵 Phase 3 — Upper Body & Core",duration:"18–20 min",exercises:[
+      {name:"Kaiser / Cable Rows (double arm)",type:"strength",sets:3,reps:"12",met:4.5,note:"Pull handles to lower chest. Squeeze shoulder blades. Elbows close."},
+      {name:"Shoulder Press (Kaiser or machine)",type:"strength",sets:3,reps:"10–12",met:4.5,note:"Press overhead until arms nearly straight. Core tight, don't arch."},
+      {name:"Shoulder Pull / Lat Pulldown",type:"strength",sets:3,reps:"12",met:4.5,note:"Pull bar to upper chest, elbows toward hips. Critical for posture."},
+      {name:"Cable Trunk Rotation",type:"strength",sets:3,reps:"12 each side",met:3.5,note:"Stand sideways to machine. Rotate torso away, hips still."}
+    ]},
+    {name:"🟣 Phase 4 — Cool Down",duration:"5 min",exercises:[
+      {name:"Treadmill Walk (forward)",type:"timed",seconds:300,met:3.0,note:"2.0–2.5 mph. Let heart rate fully settle. Breathe deeply."}
+    ]}
+  ]},
+  home:{label:"🏠 Home Strength",subtitle:"Friday — 40 min",color:C.lavender,colorLight:C.lavLight,phases:[
+    {name:"🟠 Warm-Up",duration:"8–10 min",exercises:[
+      {name:"Backwards Walk",type:"timed",seconds:180,met:3.0,note:"Walk backwards down a hallway or outside. Activates glutes and hip flexors."},
+      {name:"Cat-Cow",type:"reps",sets:1,reps:"10 reps",met:2.0,note:"On hands and knees. Inhale: drop belly, lift chest. Exhale: round spine."},
+      {name:"Downward Dog to Low Lunge Flow",type:"reps",sets:1,reps:"4 each side",met:2.5,note:"From Down Dog, step foot forward into Low Lunge. Alternate sides."},
+      {name:"Thread the Needle",type:"reps",sets:1,reps:"5–8 breaths each side",met:2.0,note:"From tabletop, sweep arm up then slide under opposite arm."},
+      {name:"Kneeling Twist Stretch & Balance",type:"reps",sets:1,reps:"5 each side",met:2.0,note:"Lunge position. Rotate upper body toward front knee, hold 2 sec."},
+      {name:"Chair Squats (bodyweight)",type:"reps",sets:1,reps:"10 reps",met:3.0,note:"Lower to touch chair, push back up. Keeps knees safe."},
+      {name:"Planks",type:"timed",sets:3,seconds:30,restSeconds:20,met:4.0,note:"Forearms down, body rigid. Build to 45 sec by Week 4."}
+    ]},
+    {name:"🌿 Lower Body",duration:"~15 min",exercises:[
+      {name:"Barbell Squat",type:"strength",sets:3,reps:"8–10",met:5.5,note:"Bar on upper traps. Sit back, chest tall. Start with bar only."},
+      {name:"Dumbbell Alternating Reverse Lunge",type:"strength",sets:3,reps:"10 each leg",met:4.5,note:"Step back, lower knee, push off front foot. Gentler on knees."},
+      {name:"Kettlebell Swing",type:"strength",sets:3,reps:"12–15",met:6.0,note:"Hinge hips, swing to shoulder height. Power from hips, not arms."},
+      {name:"Barbell Romanian Deadlift",type:"strength",sets:3,reps:"10",met:5.0,note:"Hinge at hips, bar along legs, soft knee. Feel hamstring stretch."}
+    ]},
+    {name:"💪 Upper Body",duration:"~12 min",exercises:[
+      {name:"Stability Ball Dumbbell Press",type:"strength",sets:3,reps:"10–12",met:4.5,note:"Upper back on ball, hips up. Core and glutes fire every rep."},
+      {name:"Barbell Bent-Over Row",type:"strength",sets:3,reps:"10–12",met:5.0,note:"Hinge forward, flat back. Pull bar to lower ribs, elbows close."},
+      {name:"Dumbbell Overhead Press",type:"strength",sets:3,reps:"10",met:4.5,note:"Stand tall. Press overhead until arms straight. Core tight."},
+      {name:"Stability Ball Dumbbell Row",type:"strength",sets:3,reps:"12",met:4.0,note:"Draped face-down on ball. Pull both elbows up, squeeze shoulder blades."}
+    ]},
+    {name:"⚪ Core",duration:"~5 min",exercises:[
+      {name:"Dead Bug",type:"strength",sets:2,reps:"8 each side",met:3.5,note:"On back, arms up, knees 90°. Lower opposite arm & leg slowly."},
+      {name:"Stability Ball Jackknife",type:"strength",sets:3,reps:"10–12",met:4.5,note:"Push-up position, shins on ball. Pull knees to chest, hips pike up."}
+    ]},
+    {name:"🟣 Cool Down",duration:"5 min",exercises:[
+      {name:"Outdoor Walk",type:"timed",seconds:300,met:3.0,note:"Easy relaxed pace outside. Let heart rate settle. Fresh air!"}
+    ]}
+  ]},
+  cardio:{label:"🚶 Walk + Stairs",subtitle:"Mon / Wed",color:C.teal,colorLight:C.tealLight,phases:[
+    {name:"Walk Portion",duration:"20–30 min",exercises:[
+      {name:"Brisk Walk",type:"timed",seconds:1500,met:4.0,note:"Brisk pace — can talk but slightly breathless. Target 2,500–4,000 steps."}
+    ]},
+    {name:"Stair Climb",duration:"15–20 min",exercises:[
+      ...[1,2,3,4,5,6,7,8,9,10].map(n=>({name:`Stair Climb — Floor ${n}`,type:"check",met:8.0,note:n===1?"One step at a time. Hold rail until confident. Walk back DOWN.":n===10?"Great work — 10 floors! 🎉":""}))
+    ]}
+  ]},
+  yoga:{label:"🧘 Yoga & Recovery",subtitle:"Thursday",color:C.green,colorLight:C.greenLight,phases:[
+    {name:"Video Routine",duration:"~11 min",exercises:[
+      {name:"Cleansing Breaths",type:"check",met:1.5,note:"Sit comfortably. 3–5 slow deep breaths. Set your intention."},
+      {name:"Neck Stretches",type:"check",met:1.8,note:"Drop ear to shoulder each side. Roll chin to chest and back up."},
+      {name:"Cat / Cow",type:"check",met:2.0,note:"Hands and knees. Inhale: belly drops, chest lifts. Exhale: spine rounds."},
+      {name:"Thread the Needle — Right Side",type:"check",met:2.0,note:"Sweep right arm up, slide under left. Right shoulder to mat."},
+      {name:"Side Bend — Right",type:"check",met:2.0,note:"Extend right arm overhead, lean left. Long arc through right side body."},
+      {name:"Low Lunge — Right Side",type:"check",met:2.5,note:"Right foot forward, left knee down. Sink hips. Feel left hip flexor open."},
+      {name:"Easy Twist — Right Side",type:"check",met:2.0,note:"From Low Lunge, left hand down, right arm opens to ceiling."},
+      {name:"Downward Dog",type:"check",met:3.0,note:"Inverted V. Press floor away. Pedal feet gently. Lengthen spine."},
+      {name:"Thread the Needle — Left Side",type:"check",met:2.0,note:"Sweep left arm up, slide under right. Left shoulder to mat."},
+      {name:"Side Bend — Left",type:"check",met:2.0,note:"Extend left arm overhead, lean right. Feel full left side open."},
+      {name:"Low Lunge — Left Side",type:"check",met:2.5,note:"Left foot forward, right knee down. Sink hips. Open right hip flexor."},
+      {name:"Easy Twist — Left Side",type:"check",met:2.0,note:"Right hand down, left arm opens to ceiling. Hold, breathe."},
+      {name:"Downward Dog",type:"check",met:3.0,note:"Reset and transition into standing sequence."},
+      {name:"Ragdoll",type:"check",met:2.0,note:"Stand, fold forward, soft knees. Let head and arms hang loose."},
+      {name:"Squat (Malasana)",type:"check",met:3.0,note:"Toes out, deep squat. Palms together, elbows press inner knees open."},
+      {name:"Sphinx",type:"check",met:2.0,note:"Face down, forearms on mat. Gently lift chest. Counteracts daily rounding."},
+      {name:"Child's Pose",type:"check",met:1.5,note:"Press back from Sphinx. Arms forward, forehead to floor."},
+      {name:"Seated Meditation",type:"check",met:1.2,note:"Comfortable seat. Close eyes. Observe breath without controlling it."},
+      {name:"Legs Up the Wall",type:"check",met:1.2,note:"Lie on back, legs up a wall. 5 min deeply restorative finish."}
+    ]}
+  ]},
+  bands:{label:"🪢 Resistance Bands",subtitle:"Bonus — Anytime — 25–30 min",color:C.gold,colorLight:C.goldLight,phases:[
+    {name:"🌿 Lower Body",duration:"~10 min",exercises:[
+      {name:"Band Squat",type:"strength",sets:3,reps:"15",met:4.5,note:"Stand on band, hold ends at shoulders. Squat down, chest tall."},
+      {name:"Band Lateral Walk (Crab Walk)",type:"strength",sets:3,reps:"15 each direction",met:4.0,note:"Loop band above knees. Slight squat. Step sideways 15 steps each way."},
+      {name:"Band Glute Bridge",type:"strength",sets:3,reps:"15",met:4.0,note:"Band across hips. Push hips up, squeeze glutes at top for 2 sec."}
+    ]},
+    {name:"💪 Upper Body",duration:"~12 min",exercises:[
+      {name:"Band Pull-Apart",type:"strength",sets:3,reps:"15",met:3.5,note:"Hold band at chest height, arms extended. Pull hands apart until band touches chest."},
+      {name:"Band Seated Row",type:"strength",sets:3,reps:"12",met:4.0,note:"Feet pressing middle of band. Pull both ends toward lower chest."},
+      {name:"Band Overhead Press",type:"strength",sets:3,reps:"12",met:4.0,note:"Stand on band, hold ends at shoulders. Press overhead."},
+      {name:"Band Bicep Curl",type:"strength",sets:2,reps:"12",met:3.5,note:"Stand on band, palms forward. Curl toward shoulders, elbows pinned."}
+    ]},
+    {name:"⚪ Core",duration:"~8 min",exercises:[
+      {name:"Band Trunk Rotation",type:"strength",sets:2,reps:"12 each side",met:3.5,note:"Hold band with both hands, step to create tension. Rotate torso away."},
+      {name:"Planks",type:"timed",sets:3,seconds:30,restSeconds:20,met:4.0,note:"Forearms on floor, body rigid head to heels. Breathe steadily."}
+    ]}
+  ]},
+  ball:{label:"⚽ Stability Ball",subtitle:"Bonus — Anytime — 20–25 min",color:C.teal,colorLight:C.tealLight,phases:[
+    {name:"Full Body Circuit",duration:"20–25 min",exercises:[
+      {name:"Wall Squat with Ball",type:"strength",sets:3,reps:"12–15",met:4.5,note:"Ball between lower back and wall. Slide down until thighs parallel, hold 2 sec."},
+      {name:"Ball Hamstring Curl",type:"strength",sets:3,reps:"12",met:5.0,note:"Heels on ball, hips bridged. Curl ball toward seat, then extend."},
+      {name:"Ball Dumbbell Chest Press",type:"strength",sets:3,reps:"12",met:5.0,note:"Upper back on ball, hips up. Press dumbbells from chest."},
+      {name:"Ball Overhead Press (Seated)",type:"strength",sets:3,reps:"12",met:4.5,note:"Sit tall on ball. Press dumbbells overhead. Core fires continuously."},
+      {name:"Ball Back Extension",type:"strength",sets:2,reps:"15",met:3.5,note:"Face-down on ball, hips at center. Slowly lift chest, hold 2 sec."},
+      {name:"Ball Plank",type:"timed",sets:3,seconds:25,restSeconds:20,met:5.0,note:"Forearms on ball. Body straight head to heels. Harder than floor plank!"},
+      {name:"Ball Seated Hip March",type:"strength",sets:2,reps:"20 total (alternating)",met:3.0,note:"Sit on ball, lift one knee toward chest, hold 1 sec, lower. Alternate."}
+    ]}
+  ]},
+  atwork:{label:"⚡ At-Work Mini",subtitle:"Anytime — Between Meetings — 5–6 min",color:C.coral,colorLight:C.coralLight,phases:[
+    {name:"Your Between-Meeting Reset",duration:"5–6 min",exercises:[
+      {name:"Standing Elbow to Knee Crunch",type:"strength",sets:1,reps:"20 (alternating)",met:3.5,note:"Hands behind head. Drive right elbow toward left knee as it rises."},
+      {name:"Arm Circles",type:"reps",sets:1,reps:"20 (10 fwd + 10 back)",met:2.5,note:"Arms extended to the sides. 10 forward, 10 backward."},
+      {name:"Knee-Highs (Marches)",type:"strength",sets:1,reps:"40",met:4.0,note:"March in place, driving each knee toward hip height. Pump arms."},
+      {name:"Qigong Back Swinging Twists",type:"timed",seconds:20,met:2.5,note:"Feet wide, arms relaxed. Swing upper body side to side."},
+      {name:"Deep Breaths While Bouncing",type:"timed",seconds:40,met:2.0,note:"Gentle bounce on balls of feet. Inhale 4 counts, exhale 6 counts."},
+      {name:"Tapping (EFT-style)",type:"timed",seconds:45,met:1.5,note:"Tap: top of head, eyebrows, side of eye, under eye, under nose, chin, collarbone."},
+      {name:"Chair Squats or Squats",type:"strength",sets:1,reps:"5–10",met:4.5,note:"Touch chair lightly and stand. Five squats daily = 1,800+ per year!"}
+    ]}
+  ]}
+};
+
+const MAIN_WORKOUT_KEYS = ["gym","home","cardio","yoga"];
+const BONUS_WORKOUT_KEYS = ["bands","ball","atwork"];
+const WORKOUT_COLORS = {gym:C.coral,home:C.lavender,cardio:C.teal,yoga:C.green,bands:C.gold,ball:C.teal,atwork:C.coral};
+const WORKOUT_ICONS  = {gym:"💪",home:"🏠",cardio:"🚶",yoga:"🧘",bands:"🪢",ball:"⚽",atwork:"⚡"};
+
+// ═══════════════════════════════════════════════════════════ STATE ════════════
+
+let weightLbs = 125;
+let weightKg  = 56.7;
+
+// Workout state
+let workoutHistory  = [];
+let currentWorkoutKey = null;
+let wsStartTime = null;
+let wsTimerInterval = null;
+let wsPhasesDone = 0;
+let wsTotalPhases = 0;
+
+// Nutrition state
+let nutritionTargets = {cal:1500,protein:110,carbs:145,fat:52,fiber:25,water:8};
+let todayLog = {date:"",meals:{breakfast:[],snack:[],lunch:[],dinner:[]},water:0,gruns:false,nutrops:false,creatine:0,levoTime:"",steps:0};
+let nutritionHistory = []; // [{date, cal, protein, carbs, fat, fiber, water, proteinGoalMet}]
+let currentMealSlot = null; // which slot is open for food addition
+let viewingYesterday = false;
+
+// ═══════════════════════════════════════════════════════════ UTILITIES ════════
+
+function storageGet(k){ try{return localStorage.getItem(k)}catch(e){return null} }
+function storageSet(k,v){ try{localStorage.setItem(k,v)}catch(e){} }
+function storageDelete(k){ try{localStorage.removeItem(k)}catch(e){} }
+
+function fmt(s){ const m=Math.floor(s/60),ss=s%60; return m+":"+(ss<10?"0":"")+ss }
+function todayStr(){ return new Date().toISOString().slice(0,10) }
+function fmtDate(ds){
+  const d=new Date(ds+"T12:00:00");
+  return d.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"});
+}
+function prevMonthLabel(){
+  const t=new Date();
+  return new Date(t.getFullYear(),t.getMonth()-1,1).toLocaleDateString("en-US",{month:"long",year:"numeric"});
+}
+
+function calcWorkoutCals(ex){
+  const sets=ex.sets||1;
+  let hours;
+  if(ex.type==="timed") hours=((ex.seconds||60)*sets+((ex.restSeconds||0)*(sets-1)))/3600;
+  else if(ex.type==="check") hours=((ex.seconds||30)*sets)/3600;
+  else if(ex.type==="strength") hours=(sets*45+(sets-1)*60)/3600;
+  else hours=(sets*30)/3600;
+  return Math.round(ex.met*weightKg*hours);
+}
+function workoutTotalCals(key){
+  return WORKOUTS[key].phases.reduce((s,p)=>s+p.exercises.reduce((ss,ex)=>ss+calcWorkoutCals(ex),0),0);
+}
+
+// ═══════════════════════════════════════════════════════════ SCREEN NAV ═══════
+
+function showScreen(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  window.scrollTo(0,0);
+  if(id==="screen-workout-history") renderWorkoutHistory();
+  if(id==="screen-nutrition-history") renderNutritionHistory();
+  if(id==="screen-sleep-history") renderSleepHistory();
+}
+
+function showModule(mod){
+  if(mod==="workout"){ renderWorkoutHome(); showScreen("screen-workout-home"); }
+  else if(mod==="nutrition"){ viewingYesterday=false; renderNutrition(); showScreen("screen-nutrition"); }
+  else if(mod==="sleep"){
+    showScreen("screen-sleep");
+    try{ renderSleepModule(); }
+    catch(e){ console.error("Sleep module render error:",e); }
+  }
+}
+
+function backToWorkoutHome(){ clearInterval(wsTimerInterval); renderWorkoutHome(); showScreen("screen-workout-home"); }
+
+function closeModal(id){ document.getElementById(id).classList.remove("open"); }
+function openModal(id){ document.getElementById(id).classList.add("open"); }
+
+// ═══════════════════════════════════════════════════════════ SETUP ════════════
+
+document.getElementById("weight-input").addEventListener("input",function(){
+  weightLbs=parseFloat(this.value)||125;
+  weightKg=weightLbs*0.453592;
+  document.getElementById("setup-kg").textContent="≈ "+weightKg.toFixed(1)+" kg";
+});
+
+function startApp(){
+  weightLbs=parseFloat(document.getElementById("weight-input").value)||125;
+  weightKg=weightLbs*0.453592;
+  loadAllData();
+  checkFirstOfMonth();
+  renderHome();
+  showScreen("screen-home");
+}
+
+function loadAllData(){
+  // Workout history
+  const wh=storageGet("workout-history");
+  if(wh){ try{ const p=JSON.parse(wh),cut=new Date();cut.setDate(cut.getDate()-30);workoutHistory=p.filter(e=>new Date(e.date)>=cut); }catch(e){} }
+  // Nutrition targets
+  const nt=storageGet("nutrition-targets");
+  if(nt){ try{ nutritionTargets={...nutritionTargets,...JSON.parse(nt)}; }catch(e){} }
+  // Today's nutrition log
+  loadTodayLog();
+  // Nutrition history
+  const nh=storageGet("nutrition-history");
+  if(nh){ try{ const p=JSON.parse(nh),cut=new Date();cut.setDate(cut.getDate()-30);nutritionHistory=p.filter(e=>new Date(e.date)>=cut); }catch(e){} }
+}
+
+// ═══════════════════════════════════════════════════════════ HOME SCREEN ══════
+
+function renderHome(){
+  const hr=new Date().getHours();
+  const greeting=hr<12?"Morning":hr<17?"Afternoon":"Evening";
+  document.getElementById("home-greeting").textContent=greeting;
+  document.getElementById("home-date").textContent=new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"});
+
+  // Workout info
+  const streak=calcWorkoutStreak();
+  const lastW=[...workoutHistory].reverse()[0];
+  document.getElementById("home-workout-streak").textContent=streak>0?streak+"🔥 streak":"";
+  document.getElementById("home-workout-last").textContent=lastW?(lastW.date===todayStr()?"✓ Done today":"Last: "+fmtDate(lastW.date)):"";
+
+  // Nutrition info
+  const tot=calcTodayTotals();
+  const pctProt=Math.round((tot.protein/nutritionTargets.protein)*100);
+  document.getElementById("home-nutrition-status").textContent=pctProt+"%";
+  const protColor=pctProt>=80?C.tealMid:pctProt>=50?C.gold:"#FCA5A5";
+  document.getElementById("home-nutrition-protein").style.color=pctProt>=80?C.green:pctProt>=50?C.amber:C.red;
+  document.getElementById("home-nutrition-protein").textContent=`Protein: ${tot.protein}/${nutritionTargets.protein}g`;
+
+  // Quick glance bars
+  if(tot.protein>0||tot.cal>0){
+    document.getElementById("home-nutrition-glance").style.display="block";
+    document.getElementById("home-glance-bars").innerHTML=["protein","cal","carbs"].map(k=>{
+      const labels={protein:"Protein",cal:"Calories",carbs:"Carbs"};
+      const pct=Math.min(100,Math.round((tot[k]/nutritionTargets[k])*100));
+      const col=k==="cal"?(pct>105?C.red:pct>90?C.amber:C.tealMid):(pct>=80?C.tealMid:pct>=50?C.gold:"#FCA5A5");
+      return `<div style="flex:1">
+        <div style="font-size:10px;color:rgba(255,255,255,.7);margin-bottom:2px">${labels[k]}</div>
+        <div style="background:rgba(255,255,255,.2);border-radius:3px;height:6px">
+          <div style="background:${col};border-radius:3px;height:6px;width:${pct}%;transition:width .4s"></div>
+        </div>
+        <div style="font-size:10px;color:rgba(255,255,255,.8);margin-top:2px">${pct}%</div>
+      </div>`;
+    }).join("");
+  }
+
+  // Today summary
+  const todayW=workoutHistory.filter(e=>e.date===todayStr());
+  document.getElementById("home-summary-content").innerHTML=[
+    {label:"Protein",value:`${tot.protein}g`,color:pctProt>=80?C.green:pctProt>=50?C.amber:C.gray},
+    {label:"Cal In",value:`${tot.cal}`,color:C.navy},
+    {label:"Water",value:`${todayLog.water}/${nutritionTargets.water}`,color:C.teal},
+    {label:"Workouts",value:`${todayW.length}`,color:C.coral},
+  ].map(s=>`<div style="text-align:center">
+    <div style="font-weight:800;font-size:17px;color:${s.color}">${s.value}</div>
+    <div style="font-size:10px;color:${C.gray}">${s.label}</div>
+  </div>`).join("");
+}
+
+// ═══════════════════════════════════════════════════════════ WORKOUT MODULE ═══
+
+function renderWorkoutHome(){
+  // Header buttons
+  const streak=calcWorkoutStreak();
+  document.getElementById("w-hist-btn").textContent="📊 "+workoutHistory.length+" sessions"+(streak>0?" "+streak+"🔥":"");
+
+  // Today banner
+  const todayW=workoutHistory.filter(e=>e.date===todayStr()).length;
+  const banner=document.getElementById("w-today-banner");
+  if(todayW>0){ banner.style.display="block"; banner.textContent="✓ "+todayW+" workout"+(todayW>1?"s":"")+" completed today!"+(streak>1?" "+streak+"-day streak 🔥":""); }
+  else banner.style.display="none";
+
+  renderWorkoutCards("w-main-cards",MAIN_WORKOUT_KEYS);
+  renderWorkoutCards("w-bonus-cards",BONUS_WORKOUT_KEYS);
+  renderStepsField();
+
+  // Cal summary
+  let mainCals=0;
+  document.getElementById("w-cal-main").innerHTML=MAIN_WORKOUT_KEYS.map(k=>{
+    const c=workoutTotalCals(k); mainCals+=c;
+    return `<div style="display:flex;justify-content:space-between;margin-bottom:5px"><div style="font-size:13px;color:${C.dark}">${WORKOUTS[k].label}</div><div style="font-size:13px;font-weight:700;color:${WORKOUT_COLORS[k]}">~${c} cal</div></div>`;
+  }).join("");
+  document.getElementById("w-cal-bonus").innerHTML=BONUS_WORKOUT_KEYS.map(k=>{
+    const c=workoutTotalCals(k);
+    return `<div style="display:flex;justify-content:space-between;margin-bottom:5px"><div style="font-size:13px;color:${C.dark}">${WORKOUTS[k].label}</div><div style="font-size:13px;font-weight:700;color:${WORKOUT_COLORS[k]}">~${c} cal</div></div>`;
+  }).join("");
+  document.getElementById("w-cal-total").textContent="~"+mainCals+" cal";
+}
+
+function renderWorkoutCards(containerId,keys){
+  document.getElementById(containerId).innerHTML=keys.map(k=>{
+    const w=WORKOUTS[k],c=workoutTotalCals(k),totalEx=w.phases.reduce((s,p)=>s+p.exercises.length,0);
+    const last=[...workoutHistory].reverse().find(e=>e.workoutKey===k);
+    const lastStr=last?(last.date===todayStr()?" · ✓ Today":" · ✓ "+fmtDate(last.date)):"";
+    return `<button onclick="startWorkout('${k}')" style="width:100%;background:#fff;border:none;border-radius:16px;margin-bottom:10px;padding:0;cursor:pointer;text-align:left;box-shadow:0 2px 8px rgba(0,0,0,.07);overflow:hidden">
+      <div style="background:${WORKOUT_COLORS[k]};padding:12px 16px;display:flex;justify-content:space-between;align-items:center">
+        <div style="color:#fff;font-weight:800;font-size:16px">${w.label}</div>
+        <div style="color:rgba(255,255,255,.85);font-size:11px;font-weight:600">${w.subtitle.split("—")[0].trim()}</div>
+      </div>
+      <div style="padding:10px 16px;display:flex;justify-content:space-between;align-items:center">
+        <div style="font-size:12px;color:${C.gray}">${w.phases.length} phase${w.phases.length>1?"s":""} · ${totalEx} exercises<span style="color:${C.green}">${lastStr}</span></div>
+        <div style="background:${WORKOUT_COLORS[k]}22;color:${WORKOUT_COLORS[k]};font-weight:700;border-radius:10px;padding:3px 10px;font-size:13px">~${c} cal</div>
+      </div>
+    </button>`;
+  }).join("");
+}
+
+function startWorkout(key){
+  currentWorkoutKey=key; wsStartTime=Date.now(); wsPhasesDone=0;
+  wsTotalPhases=WORKOUTS[key].phases.length;
+  const w=WORKOUTS[key];
+  document.getElementById("ws-header").style.background=w.color;
+  document.getElementById("ws-label").textContent=w.label;
+  document.getElementById("ws-subtitle").textContent=w.subtitle;
+  document.getElementById("ws-cals").textContent="~"+workoutTotalCals(key)+" cal total";
+  updateWsProgress();
+  const container=document.getElementById("ws-phases"); container.innerHTML="";
+  w.phases.forEach((phase,pi)=>renderPhase(container,phase,pi,w));
+  clearInterval(wsTimerInterval);
+  wsTimerInterval=setInterval(()=>{ document.getElementById("ws-timer").textContent="⏱ "+fmt(Math.floor((Date.now()-wsStartTime)/1000)); },1000);
+  showScreen("screen-workout-session");
+}
+
+function updateWsProgress(){
+  const pct=wsTotalPhases>0?Math.round((wsPhasesDone/wsTotalPhases)*100):0;
+  document.getElementById("ws-progress").style.width=pct+"%";
+  document.getElementById("ws-pct").textContent=pct+"% complete";
+}
+
+function onPhaseComplete(){ wsPhasesDone++; updateWsProgress(); if(wsPhasesDone>=wsTotalPhases) onWorkoutComplete(); }
+
+function onWorkoutComplete(){
+  clearInterval(wsTimerInterval);
+  const elapsed=Math.floor((Date.now()-wsStartTime)/1000);
+  const totalCals=workoutTotalCals(currentWorkoutKey);
+  const w=WORKOUTS[currentWorkoutKey];
+  const container=document.getElementById("ws-phases");
+  const card=document.createElement("div"); card.className="fadein";
+  card.style.cssText=`background:${C.green};border-radius:16px;padding:20px 16px;text-align:center;color:#fff;margin-top:8px`;
+  card.innerHTML=`<div style="font-size:40px">🎉</div>
+    <div style="font-weight:800;font-size:20px;margin-top:4px">Workout Complete!</div>
+    <div style="font-size:14px;margin-top:6px;opacity:.9">${fmt(elapsed)} · ~${totalCals} calories burned</div>
+    <div style="background:rgba(255,255,255,.15);border-radius:12px;padding:12px;margin-top:14px;text-align:left">
+      <div style="font-weight:700;font-size:13px;color:#fff;margin-bottom:8px">How hard was that? (1–10)</div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap">
+        ${[1,2,3,4,5,6,7,8,9,10].map(n=>`<button id="intensity-btn-${n}" onclick="setWorkoutIntensity(${n})"
+          style="flex:1;min-width:28px;height:36px;border-radius:8px;border:1.5px solid rgba(255,255,255,.4);
+          background:rgba(255,255,255,.15);color:#fff;font-weight:700;font-size:13px;cursor:pointer">${n}</button>`).join("")}
+      </div>
+      <div id="intensity-val" style="font-size:12px;color:rgba(255,255,255,.8);margin-top:6px;text-align:center">Tap to rate intensity</div>
+    </div>
+    <button onclick="finishWorkout(${elapsed},${totalCals})"
+      style="margin-top:14px;background:#fff;color:${C.green};border:none;border-radius:10px;padding:10px 24px;font-weight:700;font-size:15px;cursor:pointer;width:100%">
+      Save & Back to Workouts
+    </button>`;
+  container.appendChild(card); card.scrollIntoView({behavior:"smooth",block:"center"});
+}
+
+let pendingIntensity = null;
+function setWorkoutIntensity(n){
+  pendingIntensity=n;
+  [1,2,3,4,5,6,7,8,9,10].forEach(i=>{
+    const btn=document.getElementById("intensity-btn-"+i);
+    if(!btn) return;
+    btn.style.background=i===n?"rgba(255,255,255,.9)":"rgba(255,255,255,.15)";
+    btn.style.color=i===n?C.green:"#fff";
+  });
+  document.getElementById("intensity-val").textContent="Intensity: "+n+"/10 — tap Save when ready";
+}
+
+function finishWorkout(elapsed,totalCals){
+  const w=WORKOUTS[currentWorkoutKey];
+  saveWorkoutEntry({date:todayStr(),workoutKey:currentWorkoutKey,workoutLabel:w.label,durationSecs:elapsed,calories:totalCals,exercises:w.phases.reduce((s,p)=>s+p.exercises.length,0),intensity:pendingIntensity});
+  pendingIntensity=null;
+  backToWorkoutHome();
+  renderHome();
+}
+
+function saveWorkoutEntry(entry){
+  workoutHistory.push(entry);
+  const cut=new Date(); cut.setDate(cut.getDate()-30);
+  workoutHistory=workoutHistory.filter(e=>new Date(e.date)>=cut);
+  storageSet("workout-history",JSON.stringify(workoutHistory));
+}
+
+function calcWorkoutStreak(){
+  const today=new Date(); let s=0;
+  for(let i=0;i<30;i++){
+    const d=new Date(today); d.setDate(d.getDate()-i);
+    if(workoutHistory.some(e=>e.date===d.toISOString().slice(0,10))) s++;
+    else break;
+  }
+  return s;
+}
+
+// Phase rendering
+function renderPhase(container,phase,phaseIndex,workout){
+  const total=phase.exercises.length;
+  const phaseCals=phase.exercises.reduce((s,ex)=>s+calcWorkoutCals(ex),0);
+  const div=document.createElement("div"); div.style.marginBottom="24px";
+  const completed=new Array(total).fill(false); let doneCount=0;
+
+  const counter=document.createElement("div");
+  counter.style.cssText=`background:${workout.color};color:#fff;border-radius:20px;padding:3px 10px;font-size:12px;font-weight:700`;
+  counter.textContent="0/"+total;
+
+  const header=document.createElement("div");
+  header.style.cssText="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px";
+  header.innerHTML=`<div><div style="font-weight:800;font-size:16px;color:${C.dark}">${phase.name}</div>${phase.duration?`<div style="font-size:12px;color:${C.gray}">${phase.duration} · ~${phaseCals} cal</div>`:""}</div>`;
+  header.appendChild(counter); div.appendChild(header);
+
+  function checkPhase(){ if(doneCount>=total){ counter.style.background=C.green; topBtn.textContent=botBtn.textContent="✓ All Complete"; [topBtn,botBtn].forEach(b=>{b.style.borderColor=C.green;b.style.color=C.green;b.style.background=C.greenLight;}); onPhaseComplete(); } }
+  function markEx(i){ if(!completed[i]){completed[i]=true;doneCount++;counter.textContent=doneCount+"/"+total;checkPhase();} }
+  function markAll(){ for(let i=0;i<total;i++) markEx(i); div.querySelectorAll(".ex-card").forEach(c=>c.dispatchEvent(new Event("mark-complete"))); }
+
+  function makeBtn(){ const b=document.createElement("button"); b.textContent="✓ Mark All Complete"; b.style.cssText=`width:100%;border:1.5px solid ${workout.color};background:transparent;color:${workout.color};border-radius:10px;padding:8px 0;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s`; b.onclick=markAll; return b; }
+  const topBtn=makeBtn(), botBtn=makeBtn(); div.appendChild(topBtn);
+
+  const exContainer=document.createElement("div"); exContainer.style.marginTop="8px";
+  phase.exercises.forEach((ex,ei)=>{ const card=renderExCard(ex,workout,()=>markEx(ei)); exContainer.appendChild(card); });
+  div.appendChild(exContainer); div.appendChild(botBtn); container.appendChild(div);
+}
+
+function renderExCard(ex,workout,onComplete){
+  const cals=calcWorkoutCals(ex),totalSets=ex.sets||1;
+  const isTimed=ex.type==="timed",isCheck=ex.type==="check",isStrength=ex.type==="strength"||ex.type==="reps";
+  const card=document.createElement("div"); card.className="ex-card";
+  card.style.cssText=`background:#fff;border:1.5px solid ${C.grayMid};border-radius:14px;margin-bottom:10px;overflow:hidden;transition:all .25s;box-shadow:0 1px 4px rgba(0,0,0,.06)`;
+  let isDone=false,isExpanded=false;
+
+  const iconEl=document.createElement("div");
+  iconEl.style.cssText=`width:32px;height:32px;border-radius:50%;flex-shrink:0;background:${workout.colorLight};border:2px solid ${workout.color};display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .3s`;
+  iconEl.innerHTML=isTimed?"⏱":isCheck?"☐":"💪";
+
+  const nameEl=document.createElement("div"); nameEl.style.cssText=`font-weight:700;font-size:15px;color:${C.dark}`; nameEl.textContent=ex.name;
+  const metaEl=document.createElement("div"); metaEl.style.cssText=`font-size:12px;color:${C.gray};margin-top:1px`;
+  const metaTxt=isTimed?(totalSets>1?totalSets+"× ":"")+fmt(ex.seconds):isCheck?"Tap to complete":totalSets+" sets × "+ex.reps;
+  metaEl.innerHTML=metaTxt+` · <span style="color:${workout.color};font-weight:600">~${cals} cal</span>`;
+
+  const textDiv=document.createElement("div"); textDiv.style.cssText="flex:1;min-width:0"; textDiv.appendChild(nameEl); textDiv.appendChild(metaEl);
+  const rightDiv=document.createElement("div"); rightDiv.style.cssText="display:flex;align-items:center;gap:6px;flex-shrink:0";
+  let checkBtn=null,timedBtn=null;
+
+  function markDone(){
+    if(isDone) return; isDone=true;
+    card.style.background=C.greenLight; card.style.border=`1.5px solid ${C.green}`; card.style.boxShadow="none";
+    card.classList.add("burst"); setTimeout(()=>card.classList.remove("burst"),900);
+    iconEl.style.background=C.green; iconEl.style.borderColor=C.green; iconEl.innerHTML=`<span style="color:#fff;font-weight:700;font-size:17px">✓</span>`;
+    nameEl.style.textDecoration="line-through"; nameEl.style.color=C.gray;
+    metaEl.innerHTML+=` <span style="color:${C.green};font-weight:700">✓ Done!</span>`;
+    if(checkBtn){checkBtn.style.background=C.green;checkBtn.textContent="✓ Done";}
+    if(timedBtn){timedBtn.style.background=C.green;timedBtn.style.color="#fff";timedBtn.style.borderColor=C.green;timedBtn.textContent="✓ Done";}
+    onComplete();
+  }
+  card.addEventListener("mark-complete",markDone);
+
+  if(isStrength){
+    const setsDone=new Array(totalSets).fill(false); let setsCount=0;
+    const pipsDiv=document.createElement("div"); pipsDiv.style.cssText="display:flex;gap:5px";
+    for(let i=0;i<totalSets;i++){
+      const pip=document.createElement("button"),pi=i;
+      pip.style.cssText=`width:28px;height:28px;border-radius:50%;border:2px solid ${C.grayMid};background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .2s`;
+      pip.onclick=e=>{e.stopPropagation();if(isDone)return;if(!setsDone[pi]){setsDone[pi]=true;setsCount++;pip.style.background=C.teal;pip.style.borderColor=C.teal;pip.innerHTML=`<span style="color:#fff;font-size:13px;font-weight:700">✓</span>`;pip.style.animation="pip-pop .35s ease-out";setTimeout(()=>pip.style.animation="",400);if(setsCount>=totalSets)markDone();}else{setsDone[pi]=false;setsCount--;pip.style.background="#fff";pip.style.borderColor=C.grayMid;pip.innerHTML="";}};
+      pipsDiv.appendChild(pip);
+    }
+    rightDiv.appendChild(pipsDiv);
+  }
+  if(isCheck){checkBtn=document.createElement("button");checkBtn.textContent="Done";checkBtn.style.cssText=`background:${workout.color};color:#fff;border:none;border-radius:8px;padding:6px 12px;font-weight:700;font-size:13px;cursor:pointer;flex-shrink:0`;checkBtn.onclick=e=>{e.stopPropagation();markDone();};rightDiv.appendChild(checkBtn);}
+  if(isTimed){timedBtn=document.createElement("button");timedBtn.textContent="✓";timedBtn.style.cssText=`background:${C.grayLight};color:${C.gray};border:1.5px solid ${C.grayMid};border-radius:8px;padding:5px 10px;font-weight:700;font-size:12px;cursor:pointer;flex-shrink:0;transition:all .2s`;timedBtn.onclick=e=>{e.stopPropagation();markDone();};rightDiv.appendChild(timedBtn);}
+
+  const chevron=document.createElement("span"); chevron.textContent="▼"; chevron.style.cssText=`color:${C.gray};font-size:12px;flex-shrink:0`; rightDiv.appendChild(chevron);
+
+  const headerRow=document.createElement("div"); headerRow.style.cssText="display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer";
+  headerRow.onclick=()=>{isExpanded=!isExpanded;detail.style.display=isExpanded?"block":"none";chevron.textContent=isExpanded?"▲":"▼";};
+  headerRow.appendChild(iconEl); headerRow.appendChild(textDiv); headerRow.appendChild(rightDiv); card.appendChild(headerRow);
+
+  const detail=document.createElement("div"); detail.style.cssText="display:none;padding:0 14px 14px";
+  if(ex.note){const n=document.createElement("div");n.style.cssText=`background:${workout.colorLight};border-radius:8px;padding:8px 10px;font-size:13px;color:${C.dark};line-height:1.5;margin-bottom:8px`;n.textContent=ex.note;detail.appendChild(n);}
+  if(isTimed) detail.appendChild(buildTimerBlock(ex,workout.color,markDone));
+  card.appendChild(detail);
+  return card;
+}
+
+function buildTimerBlock(ex,color,onAllDone){
+  const seconds=ex.seconds||60,restSeconds=ex.restSeconds||0,totalSets=ex.sets||1;
+  let curSet=1,phase="work",timeLeft=seconds,running=false,tick=null;
+  const wrap=document.createElement("div");
+
+  function render(){
+    const isDone=phase==="done",isRest=phase==="rest";
+    const bg=isDone?C.greenLight:isRest?C.goldLight:color+"22";
+    const bc=isDone?C.green:isRest?C.gold:color;
+    wrap.style.cssText=`background:${bg};border:1.5px solid ${bc};border-radius:12px;padding:10px 14px;margin-top:8px;display:flex;align-items:center;gap:12px`;
+    wrap.innerHTML="";
+    const td=document.createElement("div"); td.style.cssText="text-align:center;min-width:64px";
+    const tn=document.createElement("div"); tn.style.cssText=`font-size:${isDone?20:28}px;font-weight:700;font-family:monospace;color:${isDone?C.green:isRest?C.gold:color};line-height:1`;
+    tn.textContent=isDone?"✓ Done":fmt(timeLeft); td.appendChild(tn);
+    if(totalSets>1&&!isDone){const sl=document.createElement("div");sl.style.cssText=`font-size:11px;color:${C.gray};margin-top:2px`;sl.textContent=isRest?"REST":"Set "+curSet+"/"+totalSets;td.appendChild(sl);}
+    wrap.appendChild(td);
+    if(!isDone){const pb=document.createElement("button");pb.style.cssText=`background:${running?C.coral:color};color:#fff;border:none;border-radius:8px;padding:7px 16px;font-weight:700;font-size:14px;cursor:pointer;min-width:70px`;pb.textContent=running?"⏸ Pause":timeLeft<(isRest?restSeconds:seconds)?"▶ Resume":"▶ Start";pb.onclick=toggle;wrap.appendChild(pb);}
+    const rb=document.createElement("button");rb.style.cssText=`background:none;border:none;font-size:18px;cursor:pointer;color:${C.gray};padding:4px`;rb.textContent="↺";rb.onclick=reset;wrap.appendChild(rb);
+  }
+
+  function doTick(){
+    timeLeft--;
+    if(timeLeft<=0){
+      clearInterval(tick);running=false;
+      if(phase==="work"){
+        if(restSeconds>0&&curSet<totalSets){phase="rest";timeLeft=restSeconds;render();running=true;tick=setInterval(doTick,1000);}
+        else if(curSet<totalSets){curSet++;timeLeft=seconds;render();running=true;tick=setInterval(doTick,1000);}
+        else{phase="done";timeLeft=0;render();onAllDone();}
+      }else if(phase==="rest"){curSet++;phase="work";timeLeft=seconds;render();running=true;tick=setInterval(doTick,1000);}
+    }else render();
+  }
+  function toggle(){if(running){clearInterval(tick);running=false;}else{running=true;tick=setInterval(doTick,1000);}render();}
+  function reset(){clearInterval(tick);running=false;curSet=1;phase="work";timeLeft=seconds;render();}
+  render(); return wrap;
+}
+
+// Workout history rendering
+function renderWorkoutHistory(){
+  const total=workoutHistory.length,totalCals=workoutHistory.reduce((s,e)=>s+(e.calories||0),0);
+  const totalMins=workoutHistory.reduce((s,e)=>s+Math.round((e.durationSecs||0)/60),0),streak=calcWorkoutStreak();
+  document.getElementById("wh-stats").innerHTML=[
+    {label:"Sessions",value:total,color:C.tealMid},{label:"Calories",value:totalCals.toLocaleString(),color:C.coral},
+    {label:"Minutes",value:totalMins,color:C.gold},{label:"Streak",value:streak+"🔥",color:C.green}
+  ].map(s=>`<div style="background:rgba(255,255,255,.1);border-radius:10px;padding:8px 6px;text-align:center"><div style="color:${s.color};font-weight:800;font-size:17px;line-height:1">${s.value}</div><div style="color:rgba(255,255,255,.6);font-size:10px;margin-top:3px">${s.label}</div></div>`).join("");
+  const today=new Date();
+  const days=Array.from({length:30},(_,i)=>{const d=new Date(today);d.setDate(d.getDate()-(29-i));return d.toISOString().slice(0,10);});
+  const byDate={};workoutHistory.forEach(e=>{if(!byDate[e.date])byDate[e.date]=[];byDate[e.date].push(e);});
+  document.getElementById("wh-cal-labels").innerHTML=["S","M","T","W","T","F","S"].map(d=>`<div style="text-align:center;font-size:10px;color:${C.gray};font-weight:600">${d}</div>`).join("");
+  const startDow=new Date(days[0]+"T12:00:00").getDay();
+  const cells=[...Array.from({length:startDow},()=>`<div></div>`),...days.map(d=>{
+    const isToday=d===todayStr(),count=(byDate[d]||[]).length;
+    const bg=count===0?C.grayLight:count===1?C.tealLight:count===2?C.tealMid:C.teal;
+    const border=isToday?`2px solid ${C.coral}`:count>0?`1px solid ${C.tealMid}`:"1px solid transparent";
+    return `<div style="aspect-ratio:1;border-radius:6px;background:${bg};border:${border};display:flex;align-items:center;justify-content:center;flex-direction:column"><span style="font-size:9px;color:${count>0?C.navy:C.gray};font-weight:${isToday?800:500}">${parseInt(d.slice(8))}</span>${count>0?`<span style="font-size:8px;color:${C.teal};font-weight:700">${count}×</span>`:""}</div>`;
+  })];
+  document.getElementById("wh-cal-grid").innerHTML=cells.join("");
+  const sessEl=document.getElementById("wh-sessions");
+  sessEl.innerHTML=workoutHistory.length===0?`<div style="background:#fff;border-radius:14px;padding:24px 16px;text-align:center;color:${C.gray}">No workouts yet!</div>`:[...workoutHistory].reverse().map(e=>{
+    const col=WORKOUT_COLORS[e.workoutKey]||C.navy,icon=WORKOUT_ICONS[e.workoutKey]||"💪";
+    return `<div style="background:#fff;border-radius:12px;padding:12px 14px;margin-bottom:8px;box-shadow:0 1px 4px rgba(0,0,0,.05);display:flex;align-items:center;gap:12px"><div style="width:40px;height:40px;border-radius:10px;flex-shrink:0;background:${col}22;display:flex;align-items:center;justify-content:center;font-size:20px">${icon}</div><div style="flex:1;min-width:0"><div style="font-weight:700;font-size:14px;color:${C.dark}">${e.workoutLabel}</div><div style="font-size:12px;color:${C.gray};margin-top:2px">${fmtDate(e.date)}</div></div><div style="text-align:right;flex-shrink:0"><div style="font-weight:700;font-size:13px;color:${col}">~${e.calories} cal</div><div style="font-size:11px;color:${C.gray}">${fmt(e.durationSecs||0)}</div></div></div>`;
+  }).join("");
+  document.getElementById("wh-buttons").innerHTML=workoutHistory.length>0?`
+    <button onclick="doWorkoutExport(false)" style="width:100%;background:${C.coral};color:#fff;border:none;border-radius:10px;padding:11px 0;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:8px">⬇️ Download as CSV</button>
+    <button onclick="clearWorkoutHistory()" style="width:100%;background:none;border:1px solid ${C.grayMid};border-radius:10px;padding:10px 0;color:${C.gray};font-size:13px;cursor:pointer">Clear all history</button>`:"";
+}
+function clearWorkoutHistory(){ if(!confirm("Clear all workout history?")) return; workoutHistory=[]; storageDelete("workout-history"); renderWorkoutHistory(); }
+
+// ═══════════════════════════════════════════════════════════ NUTRITION MODULE ═
+
+function loadTodayLog(){
+  const raw=storageGet("nutrition-today");
+  if(raw){ try{
+    const p=JSON.parse(raw);
+    if(p.date===todayStr()) todayLog=p;
+    else { savePreviousDayToHistory(p); initTodayLog(); }
+  }catch(e){ initTodayLog(); } }
+  else initTodayLog();
+}
+
+function initTodayLog(){
+  todayLog={date:todayStr(),meals:{breakfast:[],snack:[],lunch:[],dinner:[]},water:0,gruns:false,nutrops:false,creatine:0,levoTime:"",steps:0};
+  storageSet("nutrition-today",JSON.stringify(todayLog));
+}
+
+function savePreviousDayToHistory(prevLog){
+  if(!prevLog||!prevLog.date) return;
+  const tot=calcTotals(prevLog);
+  const entry={date:prevLog.date,...tot,proteinGoalMet:tot.protein>=nutritionTargets.protein,water:prevLog.water,gruns:prevLog.gruns||false,nutrops:prevLog.nutrops||false,creatine:prevLog.creatine||0,levoTime:prevLog.levoTime||"",steps:prevLog.steps||0};
+  nutritionHistory.push(entry);
+  const cut=new Date(); cut.setDate(cut.getDate()-30);
+  nutritionHistory=nutritionHistory.filter(e=>new Date(e.date)>=cut);
+  storageSet("nutrition-history",JSON.stringify(nutritionHistory));
+  initTodayLog();
+}
+
+function calcTotals(log){
+  const all=Object.values(log.meals).flat();
+  return {
+    cal:   all.reduce((s,f)=>s+(f.cal||0),0),
+    protein:all.reduce((s,f)=>s+(f.protein||0),0),
+    carbs:  all.reduce((s,f)=>s+(f.carbs||0),0),
+    fat:    all.reduce((s,f)=>s+(f.fat||0),0),
+    fiber:  all.reduce((s,f)=>s+(f.fiber||0),0),
+  };
+}
+
+function calcTodayTotals(){ return calcTotals(viewingYesterday?getYesterdayLog():todayLog); }
+
+function getYesterdayLog(){
+  // Pull yesterday's data from history
+  const yest=new Date(); yest.setDate(yest.getDate()-1);
+  const yd=yest.toISOString().slice(0,10);
+  const hist=nutritionHistory.find(e=>e.date===yd);
+  if(hist) return {date:yd,meals:{breakfast:[],snack:[],lunch:[],dinner:[],...({})},_totals:hist,water:hist.water||0};
+  return {date:yd,meals:{breakfast:[],snack:[],lunch:[],dinner:[]},water:0};
+}
+
+function saveNutritionLog(){
+  storageSet("nutrition-today",JSON.stringify(todayLog));
+  // Also update today's entry in history for running tracking
+  const tot=calcTodayTotals();
+  const idx=nutritionHistory.findIndex(e=>e.date===todayStr());
+  const entry={date:todayStr(),...tot,proteinGoalMet:tot.protein>=nutritionTargets.protein,water:todayLog.water,gruns:todayLog.gruns||false,nutrops:todayLog.nutrops||false,creatine:todayLog.creatine||0,levoTime:todayLog.levoTime||"",steps:todayLog.steps||0};
+  if(idx>=0) nutritionHistory[idx]=entry; else nutritionHistory.push(entry);
+  storageSet("nutrition-history",JSON.stringify(nutritionHistory));
+}
+
+// Midnight reset check
+function checkMidnightReset(){
+  if(todayLog.date && todayLog.date!==todayStr()){
+    savePreviousDayToHistory(todayLog);
+  }
+}
+
+function renderNutrition(){
+  checkMidnightReset();
+  const log=viewingYesterday?getYesterdayLog():todayLog;
+  renderLevoField();
+  const tot=calcTotals(log._totals?{meals:{breakfast:[log._totals],snack:[],lunch:[],dinner:[]}}:log);
+  // Use stored totals for yesterday
+  const displayTot=log._totals||tot;
+
+  // Date label
+  const dateLabel=viewingYesterday?"Yesterday — "+fmtDate(new Date(Date.now()-86400000).toISOString().slice(0,10)):"Today — "+fmtDate(todayStr());
+  document.getElementById("n-date-label").textContent=dateLabel;
+  document.getElementById("n-yesterday-btn").style.background=viewingYesterday?"rgba(255,255,255,.35)":"rgba(255,255,255,.12)";
+
+  // Macro bars
+  const macros=[
+    {key:"protein",label:"Protein",unit:"g",priority:true},
+    {key:"cal",    label:"Calories",unit:"",priority:true},
+    {key:"carbs",  label:"Carbs",unit:"g",priority:false},
+    {key:"fat",    label:"Fat",unit:"g",priority:false},
+    {key:"fiber",  label:"Fiber",unit:"g",priority:false},
+  ];
+  // Creatine bar (special — not from food macros)
+  const creatineVal=log.creatine||0;
+  const creatineTarget=4;
+  const creatinePct=Math.min(100,Math.round((creatineVal/creatineTarget)*100));
+  const creatineColor=creatineVal>=4?"#ec4899":creatineVal>=2?"#f472b6":C.gray;
+  document.getElementById("n-macro-bars").style.gridTemplateColumns=`1fr 1fr`;
+  document.getElementById("n-macro-bars").innerHTML=macros.map(m=>{
+    const val=displayTot[m.key]||0,target=nutritionTargets[m.key],pct=Math.min(105,Math.round((val/target)*100));
+    const isCalorie=m.key==="cal";
+    const color=isCalorie?(pct>100?C.red:pct>90?C.amber:C.tealMid):(pct>=90?C.green:pct>=60?C.amber:C.red);
+    const remaining=Math.max(0,target-val);
+    const isLarge=m.priority;
+    return `<div style="background:rgba(255,255,255,.1);border-radius:10px;padding:${isLarge?"10px 10px":"7px 8px"}">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">
+        <div style="color:#fff;font-weight:700;font-size:${isLarge?14:11}px">${m.label}</div>
+        <div style="color:${color};font-weight:800;font-size:${isLarge?16:12}px">${val}${m.unit}<span style="font-size:10px;opacity:.7">/${target}${m.unit}</span></div>
+      </div>
+      <div style="background:rgba(255,255,255,.2);border-radius:3px;height:${isLarge?7:5}px;margin-bottom:3px">
+        <div style="background:${color};border-radius:3px;height:100%;width:${pct}%;transition:width .4s"></div>
+      </div>
+      <div style="color:rgba(255,255,255,.65);font-size:10px">${isCalorie?(pct>100?`${val-target} over`:`${remaining} remaining`):`${remaining}${m.unit} to go`}</div>
+    </div>`;
+  }).join("")
+  + `<div style="background:rgba(255,255,255,.1);border-radius:10px;padding:7px 8px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">
+        <div style="color:#fff;font-weight:700;font-size:11px">Creatine</div>
+        <div style="color:${creatineColor};font-weight:800;font-size:12px">${creatineVal}g<span style="font-size:10px;opacity:.7">/${creatineTarget}g</span></div>
+      </div>
+      <div style="background:rgba(255,255,255,.2);border-radius:3px;height:5px;margin-bottom:3px">
+        <div style="background:${creatineColor};border-radius:3px;height:100%;width:${creatinePct}%;transition:width .4s"></div>
+      </div>
+      <div style="color:rgba(255,255,255,.65);font-size:10px">${creatineVal>=4?"✓ Goal met!":creatineTarget-creatineVal+"g to go"}</div>
+    </div>`;
+
+  // Alert banner
+  updateAlertBanner(displayTot);
+
+  // Water tracker
+  const waterTarget=nutritionTargets.water;
+  const waterCount=log.water||0;
+  document.getElementById("n-water-count").textContent=`${waterCount} / ${waterTarget} glasses`;
+  document.getElementById("n-water-glasses").innerHTML=Array.from({length:waterTarget},(_,i)=>{
+    const filled=i<waterCount;
+    return `<button onclick="${viewingYesterday?"":"toggleWater("+i+")"}" style="width:36px;height:36px;border-radius:8px;border:2px solid ${filled?C.teal:C.grayMid};background:${filled?C.tealLight:"#fff"};font-size:18px;cursor:${viewingYesterday?"default":"pointer"};transition:all .2s">${filled?"💧":"○"}</button>`;
+  }).join("");
+
+  // Grüns — green teddy bear gummy
+  const grunsOn=log.gruns||false;
+  document.getElementById("n-gruns-status").textContent=grunsOn?"✓ Taken":"Not yet";
+  document.getElementById("n-gruns-status").style.color=grunsOn?C.green:C.gray;
+  document.getElementById("n-gruns-icon").innerHTML=grunsGummyBtn(grunsOn,viewingYesterday);
+
+  // Nutrops — purple teddy bear gummy
+  const nutropson=log.nutrops||false;
+  document.getElementById("n-nutrops-status").textContent=nutropson?"✓ Taken":"Not yet";
+  document.getElementById("n-nutrops-status").style.color=nutropson?C.lavender:C.gray;
+  document.getElementById("n-nutrops-icon").innerHTML=nutropsGummyBtn(nutropson,viewingYesterday);
+
+  // Creatine — 4 pink square gummies (1g each)
+  const creatineCount=log.creatine||0;
+  document.getElementById("n-creatine-count").textContent=`${creatineCount} / 4g`;
+  document.getElementById("n-creatine-count").style.color=creatineCount>=4?"#ec4899":C.gray;
+  document.getElementById("n-creatine-gummies").innerHTML=Array.from({length:4},(_,i)=>{
+    const filled=i<creatineCount;
+    return `<button onclick="${viewingYesterday?"":"toggleCreatine("+i+")"}" title="${filled?"1g taken":"Tap to log 1g"}" style="width:36px;height:36px;border-radius:8px;border:2px solid ${filled?"#ec4899":C.grayMid};background:${filled?"#fce7f3":"#fff"};cursor:${viewingYesterday?"default":"pointer"};transition:all .25s;display:flex;align-items:center;justify-content:center">${creatineSquare(filled)}</button>`;
+  }).join("");
+
+  // Meal slots
+  const slots=[
+    {key:"breakfast",label:"☀️ Breakfast",icon:"☀️"},
+    {key:"snack",    label:"🍎 Snack",    icon:"🍎"},
+    {key:"lunch",    label:"🍱 Lunch",     icon:"🍱"},
+    {key:"dinner",   label:"🍽️ Dinner",   icon:"🍽️"},
+  ];
+  document.getElementById("n-meal-slots").innerHTML="";
+  const mealContainer=document.getElementById("n-meal-slots");
+  slots.forEach(slot=>{
+    const items=(log.meals||{})[slot.key]||[];
+    const slotCals=items.reduce((s,f)=>s+(f.cal||0),0);
+    const slotProt=items.reduce((s,f)=>s+(f.protein||0),0);
+    const div=document.createElement("div");
+    div.style.cssText="background:#fff;border-radius:14px;padding:12px 14px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.06)";
+    const headerHtml=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:${items.length>0?8:0}px">
+      <div style="font-weight:700;font-size:15px;color:${C.dark}">${slot.label}</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        ${items.length>0?`<div style="font-size:12px;color:${C.gray}">${slotCals} cal · ${slotProt}g protein</div>`:""}
+        ${!viewingYesterday?`<button onclick="openFoodBrowser('${slot.key}')" style="background:${C.teal};color:#fff;border:none;border-radius:8px;padding:5px 10px;font-size:12px;font-weight:700;cursor:pointer">+ Add</button>`:""}
+      </div>
+    </div>`;
+    const itemsHtml=items.map((f,fi)=>`
+      <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid ${C.grayMid}">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:600;color:${C.dark}">${f.name}</div>
+          <div style="font-size:11px;color:${C.gray}">${f.cal||0} cal · ${f.protein||0}g protein · ${f.carbs||0}g carbs · ${f.fat||0}g fat${f.fiber?` · ${f.fiber}g fiber`:""}</div>
+        </div>
+        ${!viewingYesterday?`<button onclick="removeFood('${slot.key}',${fi})" style="background:none;border:none;color:${C.gray};font-size:16px;cursor:pointer;flex-shrink:0">✕</button>`:""}
+      </div>`).join("");
+    const emptyHtml=items.length===0&&!viewingYesterday?`<div style="color:${C.gray};font-size:13px;text-align:center;padding:8px 0">No foods logged yet</div>`:"";
+    div.innerHTML=headerHtml+itemsHtml+emptyHtml;
+    mealContainer.appendChild(div);
+  });
+
+  // Recommendations
+  updateRecommendations(displayTot);
+}
+
+function updateAlertBanner(tot){
+  const banner=document.getElementById("n-alert-banner");
+  const hour=new Date().getHours();
+  const proteinPct=(tot.protein||0)/nutritionTargets.protein;
+  const calPct=(tot.cal||0)/nutritionTargets.cal;
+  const remaining=nutritionTargets.protein-(tot.protein||0);
+
+  if(viewingYesterday){banner.style.display="none";return;}
+
+  if(calPct>1.05){
+    banner.style.display="block";
+    banner.style.background=C.redLight; banner.style.color=C.red;
+    banner.textContent=`⚠️ Over calorie target by ${(tot.cal||0)-nutritionTargets.cal} calories`;
+  } else if(hour>=17 && proteinPct<0.6){
+    banner.style.display="block";
+    banner.style.background=C.amberLight; banner.style.color=C.amber;
+    banner.textContent=`🎯 Dinner time: you need ${remaining}g more protein to hit your goal`;
+  } else if(hour>=12 && proteinPct<0.4){
+    banner.style.display="block";
+    banner.style.background=C.amberLight; banner.style.color=C.amber;
+    banner.textContent=`💡 Halfway through the day — ${remaining}g protein still to go`;
+  } else {
+    banner.style.display="none";
+  }
+}
+
+function updateRecommendations(tot){
+  const recDiv=document.getElementById("n-recommendations");
+  const recContent=document.getElementById("n-rec-content");
+  if(viewingYesterday){recDiv.style.display="none";return;}
+
+  const remaining={
+    protein:Math.max(0,nutritionTargets.protein-(tot.protein||0)),
+    cal:Math.max(0,nutritionTargets.cal-(tot.cal||0)),
+    carbs:Math.max(0,nutritionTargets.carbs-(tot.carbs||0)),
+    fiber:Math.max(0,nutritionTargets.fiber-(tot.fiber||0)),
+  };
+
+  if(remaining.protein<10&&remaining.cal>=0){recDiv.style.display="none";return;}
+
+  // Score foods by how well they fill the gap without busting calories
+  const foods=ALL_FOODS_ALPHA.filter(f=>f.protein>0);
+  const scored=foods.map(f=>{
+    let score=0;
+    if(remaining.protein>0) score+=Math.min(f.protein,remaining.protein)*3; // protein is king
+    if(remaining.cal>0&&f.cal<=remaining.cal) score+=10; // fits calorie budget
+    else if(f.cal>remaining.cal+100) score-=20; // too many calories
+    if(remaining.fiber>0) score+=Math.min(f.fiber||0,remaining.fiber)*0.5;
+    return {...f,score};
+  }).sort((a,b)=>b.score-a.score).slice(0,3);
+
+  if(scored.length===0){recDiv.style.display="none";return;}
+
+  recDiv.style.display="block";
+  const recs=scored.map(f=>`<div style="margin-bottom:6px">• <strong>${f.name}</strong> — ${f.cal} cal, +${f.protein}g protein${f.ref?` <span style="color:${C.teal};font-size:11px">(${f.ref})</span>`:""}</div>`).join("");
+  recContent.innerHTML=`<div style="color:${C.gold};font-size:12px;margin-bottom:6px">You need ${remaining.protein}g more protein · ${remaining.cal} calories remaining</div>${recs}`;
+}
+
+// ── SUPPLEMENT GUMMY HELPERS ─────────────────────────────────────────────────
+
+function teddyBearSVG(bodyColor, outlineColor, filled){
+  // Simple SVG teddy bear face gummy
+  const shine = filled ? `<ellipse cx="13" cy="11" rx="3" ry="2" fill="rgba(255,255,255,0.35)"/>` : "";
+  return `<svg width="30" height="30" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
+    <!-- ears -->
+    <circle cx="10" cy="9" r="6" fill="${outlineColor}"/>
+    <circle cx="26" cy="9" r="6" fill="${outlineColor}"/>
+    <circle cx="10" cy="9" r="4" fill="${bodyColor}"/>
+    <circle cx="26" cy="9" r="4" fill="${bodyColor}"/>
+    <!-- head -->
+    <circle cx="18" cy="20" r="13" fill="${outlineColor}"/>
+    <circle cx="18" cy="20" r="11" fill="${bodyColor}"/>
+    <!-- snout -->
+    <ellipse cx="18" cy="24" rx="5" ry="3.5" fill="${outlineColor}" opacity="0.5"/>
+    <!-- eyes -->
+    <circle cx="14" cy="18" r="1.8" fill="${outlineColor}"/>
+    <circle cx="22" cy="18" r="1.8" fill="${outlineColor}"/>
+    <circle cx="14.5" cy="17.5" r=".7" fill="white"/>
+    <circle cx="22.5" cy="17.5" r=".7" fill="white"/>
+    <!-- nose -->
+    <ellipse cx="18" cy="23" rx="2" ry="1.2" fill="${outlineColor}"/>
+    ${shine}
+    ${filled ? `<circle cx="30" cy="6" r="5" fill="#22c55e"/><text x="30" y="10" text-anchor="middle" font-size="8" fill="white" font-weight="bold">✓</text>` : ""}
+  </svg>`;
+}
+
+function grunsGummyBtn(filled, disabled){
+  const bodyColor = filled ? "#4ade80" : "#bbf7d0";
+  const outlineColor = filled ? "#16a34a" : "#86efac";
+  return `<button onclick="${disabled?"":"toggleGruns()"}" title="Tap to mark Grüns taken"
+    style="width:36px;height:36px;border-radius:8px;border:2px solid ${filled?"#16a34a":C.grayMid};background:${filled?"#dcfce7":"#f9fafb"};cursor:${disabled?"default":"pointer"};transition:all .25s;padding:2px">
+    ${teddyBearSVG(bodyColor,outlineColor,filled)}
+  </button>`;
+}
+
+function nutropsGummyBtn(filled, disabled){
+  const bodyColor = filled ? "#c084fc" : "#e9d5ff";
+  const outlineColor = filled ? "#7c3aed" : "#c4b5fd";
+  return `<button onclick="${disabled?"":"toggleNutrops()"}" title="Tap to mark Nutrops taken"
+    style="width:36px;height:36px;border-radius:8px;border:2px solid ${filled?"#7c3aed":C.grayMid};background:${filled?"#f5f3ff":"#f9fafb"};cursor:${disabled?"default":"pointer"};transition:all .25s;padding:2px">
+    ${teddyBearSVG(bodyColor,outlineColor,filled)}
+  </button>`;
+}
+
+function creatineSquare(filled){
+  // Pink square gummy face
+  const bodyColor = filled ? "#f9a8d4" : "#fce7f3";
+  const outlineColor = filled ? "#db2777" : "#fbcfe8";
+  return `<svg width="28" height="28" viewBox="0 0 34 34" xmlns="http://www.w3.org/2000/svg">
+    <rect x="2" y="2" width="30" height="30" rx="8" fill="${outlineColor}"/>
+    <rect x="4" y="4" width="26" height="26" rx="6" fill="${bodyColor}"/>
+    ${filled ? `<circle cx="12" cy="15" r="2" fill="${outlineColor}"/>
+    <circle cx="22" cy="15" r="2" fill="${outlineColor}"/>
+    <path d="M11 21 Q17 25 23 21" stroke="${outlineColor}" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <ellipse cx="8" cy="10" rx="2" ry="2" fill="${outlineColor}"/>
+    <ellipse cx="26" cy="10" rx="2" ry="2" fill="${outlineColor}"/>
+    <ellipse cx="24" cy="7" rx="3" ry="2" fill="${outlineColor}" opacity=".7"/>
+    <text x="17" y="11" text-anchor="middle" font-size="7" fill="white" font-weight="bold">1g</text>` 
+    : `<text x="17" y="21" text-anchor="middle" font-size="9" fill="${outlineColor}" font-weight="600">1g</text>`}
+  </svg>`;
+}
+
+function toggleGruns(){
+  if(viewingYesterday) return;
+  todayLog.gruns=!todayLog.gruns;
+  saveNutritionLog();
+  renderNutrition();
+}
+
+function toggleNutrops(){
+  if(viewingYesterday) return;
+  todayLog.nutrops=!todayLog.nutrops;
+  saveNutritionLog();
+  renderNutrition();
+}
+
+function toggleCreatine(idx){
+  if(viewingYesterday) return;
+  // Tap filled = remove that dose; tap empty = add up to that dose
+  todayLog.creatine = idx < (todayLog.creatine||0) ? idx : idx+1;
+  saveNutritionLog();
+  renderNutrition();
+}
+
+function toggleWater(idx){
+  if(viewingYesterday) return;
+  todayLog.water=idx<todayLog.water?idx:(idx+1);
+  saveNutritionLog();
+  if(todayLog.water>=nutritionTargets.water){ document.getElementById("n-water-count").style.color=C.green; }
+  renderNutrition();
+}
+
+function openFoodBrowser(slot){
+  currentMealSlot=slot;
+  switchFoodTab("plan");
+  openModal("modal-food");
+}
+
+function switchFoodTab(tab){
+  ["plan","alpha","manual"].forEach(t=>{
+    const el=document.getElementById("food-tab-"+t),btn=document.getElementById("tab-"+t);
+    el.style.display=t===tab?"block":"none";
+    btn.style.background=t===tab?C.teal:"#E5E7EB";
+    btn.style.color=t===tab?"#fff":C.gray;
+  });
+  if(tab==="plan") renderPlanTab();
+  if(tab==="alpha") renderAlphaTab();
+}
+
+// Food lookup registry — avoids inline JSON serialization issues in onclick
+const FOOD_REGISTRY = [];
+function registerFood(f){ FOOD_REGISTRY.push(f); return FOOD_REGISTRY.length-1; }
+function addFoodByIndex(idx){ addFoodObject(FOOD_REGISTRY[idx]); }
+
+function renderPlanTab(){
+  FOOD_REGISTRY.length=0; // reset on each render
+  const categories=[
+    {label:"☀️ Breakfast",    foods:FOOD_DB.breakfast},
+    {label:"🍱 Bento / Lunch",foods:FOOD_DB.lunch},
+    {label:"🍽️ Dinner",       foods:FOOD_DB.dinner},
+    {label:"🍎 Snacks",        foods:FOOD_DB.snacks},
+    {label:"➕ Other",         foods:FOOD_DB.other},
+  ];
+  document.getElementById("food-tab-plan").innerHTML=categories.map(cat=>`
+    <div style="margin-bottom:16px">
+      <div style="font-weight:700;font-size:13px;color:${C.teal};text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">${cat.label}</div>
+      ${cat.foods.map(f=>foodItemHtml(f)).join("")}
+    </div>`).join("");
+}
+
+function renderAlphaTab(){
+  document.getElementById("food-tab-alpha").innerHTML=ALL_FOODS_ALPHA.map(f=>foodItemHtml(f)).join("");
+}
+
+function foodItemHtml(f){
+  const idx=registerFood(f);
+  return `<button onclick="addFoodByIndex(${idx})" style="width:100%;background:#fff;border:1px solid ${C.grayMid};border-radius:10px;padding:10px 12px;margin-bottom:6px;text-align:left;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.04)">
+    <div style="font-weight:600;font-size:13px;color:${C.dark}">${f.name}${f.ref?` <span style="color:${C.teal};font-size:11px">(${f.ref})</span>`:""}</div>
+    <div style="font-size:11px;color:${C.gray};margin-top:3px">${f.cal} cal · ${f.protein}g protein · ${f.carbs}g carbs · ${f.fat}g fat${f.fiber?` · ${f.fiber}g fiber`:""}</div>
+  </button>`;
+}
+
+function addFoodObject(f){
+  if(!currentMealSlot||!f) return;
+  todayLog.meals[currentMealSlot].push(f);
+  saveNutritionLog();
+  closeModal("modal-food");
+  renderNutrition();
+}
+
+function addFood(foodJson){
+  try{ addFoodObject(JSON.parse(foodJson)); }catch(e){ console.error("addFood parse error",e); }
+}
+
+// ═══════════════════════════════════════════════════════ LOCAL NUTRITION DB ══
+// Per-100g values unless noted. Format: [cal, protein, carbs, fat, fiber]
+const NUTRITION_DB = [
+  // ── PROTEINS ─────────────────────────────────────────────────────────────
+  {n:["salmon","canned salmon","tinned salmon","atlantic salmon"],        per100:[142,20,0,7,0],   unit:"g"},
+  {n:["tuna","canned tuna","albacore tuna","ahi tuna","yellowfin tuna"], per100:[116,26,0,1,0],   unit:"g"},
+  {n:["shrimp","prawns"],                                                 per100:[99, 24,0,1,0],   unit:"g"},
+  {n:["chicken breast","grilled chicken","chicken"],                      per100:[165,31,0,4,0],   unit:"g"},
+  {n:["ground turkey","turkey"],                                          per100:[149,19,0,8,0],   unit:"g"},
+  {n:["skirt steak","flank steak","beef steak","steak","beef"],          per100:[222,26,0,13,0],  unit:"g"},
+  {n:["egg","hard boiled egg","hard-boiled egg","boiled egg","fried egg","scrambled egg"],per100:[155,13,1,11,0],unit:"g",stdServing:50,stdLabel:"1 large egg"},
+  {n:["egg white","egg whites"],                                          per100:[52, 11,1,0, 0],  unit:"g",stdServing:30,stdLabel:"1 egg white"},
+  {n:["greek yogurt","plain greek yogurt","non-fat greek yogurt"],       per100:[59, 10,4,0, 0],  unit:"g"},
+  {n:["cottage cheese"],                                                   per100:[98, 11,3,4, 0],  unit:"g"},
+  {n:["feta cheese","feta"],                                               per100:[264,14,4,21,0],  unit:"g"},
+  {n:["mozzarella","mozzarella cheese"],                                   per100:[280,28,2,17,0],  unit:"g"},
+  {n:["tofu","firm tofu"],                                                 per100:[76, 8, 2,4, 0],  unit:"g"},
+  {n:["edamame"],                                                          per100:[122,11,10,5,5],  unit:"g"},
+  {n:["protein shake","protein powder","whey protein"],                    per100:[370,80,5,5, 0],  unit:"g",stdServing:30,stdLabel:"1 scoop"},
+
+  // ── FISH EXTRAS ───────────────────────────────────────────────────────────
+  {n:["sardines","canned sardines"],                                       per100:[208,25,0,11,0],  unit:"g"},
+  {n:["tilapia"],                                                          per100:[96, 20,0,2, 0],  unit:"g"},
+  {n:["cod","halibut","white fish"],                                       per100:[82, 18,0,1, 0],  unit:"g"},
+
+  // ── LEGUMES ───────────────────────────────────────────────────────────────
+  {n:["lentils","cooked lentils","red lentils","green lentils"],          per100:[116,9,20,0,8],   unit:"g"},
+  {n:["chickpeas","garbanzo beans","canned chickpeas"],                    per100:[164,9,27,3,8],   unit:"g"},
+  {n:["black beans","kidney beans","pinto beans","beans"],                per100:[132,9,24,1,9],   unit:"g"},
+  {n:["hummus"],                                                           per100:[166,8,14,10,6],  unit:"g"},
+  {n:["edamame"],                                                          per100:[122,11,10,5,5],  unit:"g"},
+
+  // ── GRAINS & CARBS ────────────────────────────────────────────────────────
+  {n:["brown rice","cooked brown rice"],                                   per100:[112,2,23,1,2],   unit:"g"},
+  {n:["white rice","cooked rice","basmati rice","jasmine rice"],          per100:[130,3,28,0,0],   unit:"g"},
+  {n:["quinoa","cooked quinoa"],                                           per100:[120,4,22,2,3],   unit:"g"},
+  {n:["oats","oatmeal","rolled oats","overnight oats"],                   per100:[389,17,66,7,10], unit:"g"},
+  {n:["whole wheat bread","wheat bread","bread","toast"],                  per100:[247,13,41,4,7],  unit:"g",stdServing:30,stdLabel:"1 slice"},
+  {n:["sweet potato","yam"],                                               per100:[86, 2,20,0,3],   unit:"g"},
+  {n:["potato","baked potato"],                                            per100:[77, 2,17,0,2],   unit:"g"},
+  {n:["pasta","spaghetti","cooked pasta"],                                 per100:[131,5,25,1,2],   unit:"g"},
+  {n:["tortilla","flour tortilla","corn tortilla"],                        per100:[218,6,38,5,3],   unit:"g",stdServing:35,stdLabel:"1 tortilla"},
+  {n:["corn","corn kernels"],                                              per100:[86, 3,19,1,2],   unit:"g"},
+  {n:["crackers","rice crackers"],                                         per100:[421,9,70,10,3],  unit:"g"},
+  {n:["granola"],                                                          per100:[471,11,64,20,5], unit:"g"},
+
+  // ── VEGETABLES ────────────────────────────────────────────────────────────
+  {n:["spinach","baby spinach","fresh spinach"],                           per100:[23, 3,4,0,2],    unit:"g"},
+  {n:["kale"],                                                             per100:[35, 2,4,0,4],    unit:"g"},
+  {n:["arugula","rocket"],                                                 per100:[25, 2,4,0,2],    unit:"g"},
+  {n:["mixed greens","salad greens","lettuce","romaine"],                  per100:[15, 1,3,0,1],    unit:"g"},
+  {n:["broccoli"],                                                         per100:[34, 3,7,0,3],    unit:"g"},
+  {n:["cucumber"],                                                         per100:[15, 1,4,0,1],    unit:"g"},
+  {n:["tomato","tomatoes","cherry tomatoes","roma tomatoes","san marzano tomatoes","marzano tomatoes"],per100:[18,1,4,0,1],unit:"g",stdServing:120,stdLabel:"1 medium tomato"},
+  {n:["bell pepper","red pepper","yellow pepper","green pepper","pepper"], per100:[31, 1,6,0,2],    unit:"g"},
+  {n:["onion","red onion","white onion","yellow onion"],                   per100:[40, 1,9,0,2],    unit:"g"},
+  {n:["garlic"],                                                           per100:[149,6,33,1,2],   unit:"g",stdServing:3,stdLabel:"1 clove"},
+  {n:["mushroom","mushrooms","portobello"],                                per100:[22, 3,3,0,1],    unit:"g"},
+  {n:["zucchini","courgette"],                                             per100:[17, 1,3,0,1],    unit:"g"},
+  {n:["asparagus"],                                                        per100:[20, 2,4,0,2],    unit:"g"},
+  {n:["carrot","carrots"],                                                 per100:[41, 1,10,0,3],   unit:"g"},
+  {n:["celery"],                                                           per100:[16, 1,3,0,2],    unit:"g"},
+  {n:["cauliflower"],                                                      per100:[25, 2,5,0,2],    unit:"g"},
+  {n:["green beans","string beans"],                                       per100:[31, 2,7,0,3],    unit:"g"},
+  {n:["peas"],                                                             per100:[81, 5,14,0,5],   unit:"g"},
+  {n:["cabbage","red cabbage"],                                            per100:[25, 1,6,0,3],    unit:"g"},
+  {n:["beets","beetroot"],                                                 per100:[43, 2,10,0,3],   unit:"g"},
+  {n:["edamame"],                                                          per100:[122,11,10,5,5],  unit:"g"},
+  {n:["artichoke"],                                                        per100:[53, 3,12,0,5],   unit:"g"},
+
+  // ── FRUITS ────────────────────────────────────────────────────────────────
+  {n:["avocado","small avocado","hass avocado"],                          per100:[160,2,9,15,7],   unit:"g",stdServing:100,stdLabel:"1 small avocado"},
+  {n:["banana"],                                                           per100:[89, 1,23,0,3],   unit:"g",stdServing:120,stdLabel:"1 medium banana"},
+  {n:["apple"],                                                            per100:[52, 0,14,0,2],   unit:"g",stdServing:180,stdLabel:"1 medium apple"},
+  {n:["orange"],                                                           per100:[47, 1,12,0,2],   unit:"g",stdServing:140,stdLabel:"1 medium orange"},
+  {n:["berries","blueberries","strawberries","raspberries","blackberries"],per100:[57, 1,14,0,3],   unit:"g"},
+  {n:["grapes"],                                                           per100:[67, 1,17,0,1],   unit:"g"},
+  {n:["mango"],                                                            per100:[60, 1,15,0,2],   unit:"g"},
+  {n:["pineapple"],                                                        per100:[50, 1,13,0,1],   unit:"g"},
+  {n:["watermelon"],                                                       per100:[30, 1,8, 0,0],   unit:"g"},
+  {n:["lemon","lime"],                                                     per100:[29, 1,9, 0,3],   unit:"g",stdServing:50,stdLabel:"1 lemon"},
+
+  // ── NUTS & SEEDS ──────────────────────────────────────────────────────────
+  {n:["almonds","almond"],                                                 per100:[579,21,22,50,13],unit:"g"},
+  {n:["walnuts","walnut"],                                                 per100:[654,15,14,65,7], unit:"g"},
+  {n:["cashews","cashew"],                                                 per100:[553,18,30,44,3], unit:"g"},
+  {n:["peanuts","peanut"],                                                 per100:[567,26,16,49,9], unit:"g"},
+  {n:["pistachios","pistachio"],                                           per100:[562,20,28,45,10],unit:"g"},
+  {n:["mixed nuts","nuts"],                                                per100:[607,18,18,54,7], unit:"g"},
+  {n:["peanut butter"],                                                    per100:[588,25,20,50,6], unit:"g",stdServing:32,stdLabel:"2 tbsp"},
+  {n:["almond butter"],                                                    per100:[614,21,22,56,6], unit:"g",stdServing:32,stdLabel:"2 tbsp"},
+  {n:["chia seeds"],                                                       per100:[486,17,42,31,34],unit:"g"},
+  {n:["flaxseed","ground flaxseed","flax seeds"],                         per100:[534,18,29,42,27],unit:"g"},
+  {n:["pumpkin seeds","pepitas"],                                          per100:[559,30,11,49,6], unit:"g"},
+  {n:["sunflower seeds"],                                                  per100:[584,21,20,51,9], unit:"g"},
+  {n:["sesame seeds","tahini"],                                            per100:[573,17,23,50,12],unit:"g"},
+
+  // ── FATS & OILS ───────────────────────────────────────────────────────────
+  {n:["olive oil","extra virgin olive oil","evoo"],                       per100:[884,0,0,100,0],  unit:"g",stdServing:14,stdLabel:"1 tbsp"},
+  {n:["coconut oil"],                                                      per100:[862,0,0,100,0],  unit:"g",stdServing:14,stdLabel:"1 tbsp"},
+  {n:["butter"],                                                           per100:[717,1,0,81,0],   unit:"g",stdServing:14,stdLabel:"1 tbsp"},
+
+  // ── DAIRY ─────────────────────────────────────────────────────────────────
+  {n:["milk","whole milk","2% milk","skim milk"],                         per100:[61, 3,5,3,0],    unit:"g"},
+  {n:["oat milk"],                                                         per100:[47, 1,7,2,1],    unit:"g"},
+  {n:["almond milk"],                                                      per100:[17, 1,1,1,0],    unit:"g"},
+  {n:["cheese","cheddar","parmesan"],                                      per100:[402,25,1,33,0],  unit:"g"},
+
+  // ── DRESSINGS & SAUCES ────────────────────────────────────────────────────
+  {n:["lemon herb dressing","vinaigrette","dressing"],                    per100:[357,0,14,33,0],  unit:"g",stdServing:30,stdLabel:"2 tbsp"},
+  {n:["salsa"],                                                            per100:[36, 2,8,0,2],    unit:"g",stdServing:60,stdLabel:"¼ cup"},
+  {n:["guacamole"],                                                        per100:[150,2,8,13,6],   unit:"g",stdServing:60,stdLabel:"¼ cup"},
+  {n:["soy sauce","tamari"],                                               per100:[53, 8,5,0,1],    unit:"g",stdServing:15,stdLabel:"1 tbsp"},
+  {n:["hot sauce"],                                                        per100:[23, 1,4,0,1],    unit:"g"},
+  {n:["ketchup"],                                                          per100:[112,1,27,0,0],   unit:"g",stdServing:17,stdLabel:"1 tbsp"},
+  {n:["mustard"],                                                          per100:[66, 4,6,4,3],    unit:"g"},
+
+  // ── SNACKS & OTHER ────────────────────────────────────────────────────────
+  {n:["protein bar","quest bar","rx bar"],                                 per100:[370,28,40,12,14],unit:"g",stdServing:60,stdLabel:"1 bar"},
+  {n:["dark chocolate","chocolate"],                                       per100:[598,8,46,43,11], unit:"g"},
+  {n:["honey"],                                                            per100:[304,0,82,0,0],   unit:"g",stdServing:21,stdLabel:"1 tbsp"},
+  {n:["wine","red wine","white wine"],                                     per100:[85, 0,3,0,0],    unit:"g",stdServing:148,stdLabel:"5oz glass"},
+  {n:["beer","light beer"],                                                per100:[43, 0,4,0,0],    unit:"g",stdServing:355,stdLabel:"12oz can"},
+  {n:["coffee","black coffee"],                                            per100:[2,  0,0,0,0],    unit:"g"},
+  {n:["orange juice","oj"],                                                per100:[45, 1,10,0,0],   unit:"g"},
+];
+
+// ─── UNIT CONVERSION TO GRAMS ────────────────────────────────────────────────
+// Returns grams for a given quantity + unit string
+const UNIT_TO_G = {
+  // weight
+  "g":1, "gram":1, "grams":1,
+  "oz":28.35, "ounce":28.35, "ounces":28.35,
+  "lb":453.6, "lbs":453.6, "pound":453.6, "pounds":453.6,
+  "kg":1000,
+  // volume (approximate for food)
+  "ml":1, "milliliter":1,
+  "l":1000, "liter":1000,
+  "tsp":5, "teaspoon":5, "teaspoons":5,
+  "tbsp":15, "tablespoon":15, "tablespoons":15,
+  "cup":240, "cups":240,
+  "fl oz":30, "fluid oz":30,
+  // count words → handled separately
+};
+
+// Produce weights in grams for count-based items
+const COUNT_WORDS = {
+  "small":0.75,"medium":1,"large":1.25,"big":1.3,"extra large":1.5,
+  "half":0.5,"quarter":0.25,"handful":30/100, // treated as grams multiplier
+};
+
+function parseQuantity(str){
+  // Returns {grams, label} or null
+  // Examples: "3oz", "1 cup", "1 small", "half a cup", "2 tbsp", "a handful"
+  str = str.trim().toLowerCase();
+
+  // Fractions
+  const fracMap = {"½":0.5,"¼":0.25,"¾":0.75,"⅓":0.333,"⅔":0.667,"⅛":0.125};
+  for(const [sym,val] of Object.entries(fracMap)) str = str.replace(sym, val+" ");
+
+  // "a" or "an" → 1
+  str = str.replace(/\ba\b|\ban\b/g,"1");
+
+  // Extract number + unit
+  const numUnitRe = /(\d+\.?\d*)\s*(oz|ounce|ounces|g|gram|grams|lb|lbs|pound|pounds|kg|ml|milliliter|l|liter|tsp|teaspoon|teaspoons|tbsp|tablespoon|tablespoons|cups?|fl\s?oz|fluid\s?oz)/i;
+  const m = str.match(numUnitRe);
+  if(m){
+    const qty = parseFloat(m[1]);
+    const unitKey = m[2].toLowerCase().replace(/\s+/,"");
+    const factor = UNIT_TO_G[unitKey] || UNIT_TO_G[unitKey.replace(/s$/,"")] || null;
+    if(factor) return {grams: qty * factor, label: m[0]};
+  }
+
+  // "1 small", "2 medium", "3 large"
+  const sizeRe = /(\d+\.?\d*)\s*(small|medium|large|big|extra\s*large)/i;
+  const sm = str.match(sizeRe);
+  if(sm) return {grams: parseFloat(sm[1]), sizeMultiplier: COUNT_WORDS[sm[2].toLowerCase()]||1, label: sm[0]};
+
+  // Plain number with no unit → assume count
+  const numRe = /^(\d+\.?\d*)\s*$/;
+  const nm = str.match(numRe);
+  if(nm) return {grams: parseFloat(nm[1]), isCount:true, label: nm[0]};
+
+  return null;
+}
+
+function findFoodMatch(term){
+  term = term.toLowerCase().trim();
+  // Exact match first
+  for(const food of NUTRITION_DB){
+    if(food.n.some(n=>n===term)) return food;
+  }
+  // Partial match — term contains a food name or vice versa
+  let bestMatch=null, bestLen=0;
+  for(const food of NUTRITION_DB){
+    for(const n of food.n){
+      if(term.includes(n) || n.includes(term)){
+        if(n.length>bestLen){ bestLen=n.length; bestMatch=food; }
+      }
+    }
+  }
+  return bestMatch;
+}
+
+function estimateSingleItem(rawItem){
+  // rawItem: e.g. "3oz canned salmon" or "1 small avocado" or "hard boiled egg"
+  rawItem = rawItem.trim();
+
+  // Try to split into (quantity-part) + (food-part)
+  // Patterns: "3oz salmon", "1 cup lentils", "1 small avocado", "hard boiled egg" (no qty)
+  const qtyPatterns = [
+    /^(\d+\.?\d*\s*(?:oz|ounces?|g|grams?|lbs?|pounds?|cups?|tbsp|tablespoons?|tsp|teaspoons?|ml|l|kg|fl\s?oz))\s+(.+)/i,
+    /^(\d+\.?\d*\s*(?:small|medium|large|big))\s+(.+)/i,
+    /^(half|quarter|a handful of|handful of|a handful|handful)\s+(.+)/i,
+    /^(\d+\.?\d*)\s+(.+)/i,
+  ];
+
+  let qtyStr="", foodStr=rawItem;
+  for(const re of qtyPatterns){
+    const m=rawItem.match(re);
+    if(m){ qtyStr=m[1]; foodStr=m[2]; break; }
+  }
+
+  const food = findFoodMatch(foodStr) || findFoodMatch(rawItem);
+  if(!food) return null;
+
+  const [c,p,carb,f,fib] = food.per100;
+
+  let gramsToUse = 100; // default: 100g
+
+  if(qtyStr){
+    const qty = parseQuantity(qtyStr);
+    if(qty){
+      if(qty.sizeMultiplier !== undefined && food.stdServing){
+        // "1 small avocado" → stdServing * sizeMultiplier
+        gramsToUse = food.stdServing * qty.sizeMultiplier * (qty.grams||1);
+      } else if(qty.isCount && food.stdServing){
+        gramsToUse = food.stdServing * qty.grams;
+      } else if(qty.grams){
+        gramsToUse = qty.grams;
+      }
+    }
+  } else if(food.stdServing){
+    // No quantity given → use standard serving
+    gramsToUse = food.stdServing;
+  }
+
+  const scale = gramsToUse / 100;
+  return {
+    cal:    Math.round(c   * scale),
+    protein:Math.round(p   * scale),
+    carbs:  Math.round(carb* scale),
+    fat:    Math.round(f   * scale),
+    fiber:  Math.round(fib * scale),
+  };
+}
+
+function estimateMacrosWithAI(){
+  const input = document.getElementById("ai-food-input").value.trim();
+  if(!input){ alert("Please describe a food first."); return; }
+
+  const btn    = document.getElementById("ai-estimate-btn");
+  const status = document.getElementById("ai-estimator-status");
+
+  btn.disabled = true;
+  btn.textContent = "✨ Estimating...";
+  status.style.display = "block";
+  status.style.background = "#EDF2F7";
+  status.style.color = "#1B3A5C";
+  status.textContent = "Estimating macros…";
+
+  // Split on common delimiters: /, +, and, comma, newline
+  const items = input.split(/[\/,\+\n]+|(?:\band\b)/i)
+    .map(s=>s.trim()).filter(s=>s.length>0);
+
+  const totals = {cal:0,protein:0,carbs:0,fat:0,fiber:0};
+  const matched=[], unmatched=[];
+
+  for(const item of items){
+    const result = estimateSingleItem(item);
+    if(result){
+      totals.cal     += result.cal;
+      totals.protein += result.protein;
+      totals.carbs   += result.carbs;
+      totals.fat     += result.fat;
+      totals.fiber   += result.fiber;
+      matched.push(item);
+    } else {
+      unmatched.push(item);
+    }
+  }
+
+  if(matched.length === 0){
+    status.style.background = "#FEE2E2";
+    status.style.color = "#DC2626";
+    status.innerHTML = `⚠ Couldn't recognise any foods in that description. Try simpler names like "salmon", "avocado", "egg". Or use Cronometer below for exact values.`;
+    btn.disabled=false; btn.textContent="✨ Estimate Macros";
+    return;
+  }
+
+  // Build a clean name from matched items
+  const cleanName = matched.map(s=>s.replace(/^\d+\.?\d*\s*/,"").trim()).join(" + ");
+
+  // Fill form fields
+  document.getElementById("manual-name").value    = cleanName;
+  document.getElementById("manual-cal").value     = totals.cal;
+  document.getElementById("manual-protein").value = totals.protein;
+  document.getElementById("manual-carbs").value   = totals.carbs;
+  document.getElementById("manual-fat").value     = totals.fat;
+  document.getElementById("manual-fiber").value   = totals.fiber;
+
+  // Build status message
+  let msg = `✓ <strong>${totals.cal} cal · ${totals.protein}g protein · ${totals.carbs}g carbs · ${totals.fat}g fat · ${totals.fiber}g fiber</strong>`;
+  if(unmatched.length>0){
+    msg += `<br><span style="color:#D97706;font-size:11px">⚠ Not recognised (added as 0): ${unmatched.join(", ")}. Adjust manually if needed.</span>`;
+  }
+  msg += `<br><span style="font-size:11px;opacity:.8">Review below and tap Add to Log when ready.</span>`;
+
+  status.style.background = matched.length>0&&unmatched.length===0?"#EAF4EB":"#FEF3C7";
+  status.style.color = matched.length>0&&unmatched.length===0?"#3A7D44":"#92400E";
+  status.innerHTML = msg;
+
+  document.getElementById("manual-name").scrollIntoView({behavior:"smooth",block:"center"});
+  btn.disabled=false; btn.textContent="✨ Estimate Macros";
+}
+
+function addManualFood(){
+  const name=document.getElementById("manual-name").value.trim();
+  if(!name){alert("Please enter a food name.");return;}
+  const f={
+    name,
+    cal:parseInt(document.getElementById("manual-cal").value)||0,
+    protein:parseInt(document.getElementById("manual-protein").value)||0,
+    carbs:parseInt(document.getElementById("manual-carbs").value)||0,
+    fat:parseInt(document.getElementById("manual-fat").value)||0,
+    fiber:parseInt(document.getElementById("manual-fiber").value)||0,
+  };
+  todayLog.meals[currentMealSlot].push(f);
+  saveNutritionLog();
+  closeModal("modal-food");
+  ["manual-name","manual-cal","manual-protein","manual-carbs","manual-fat","manual-fiber"].forEach(id=>document.getElementById(id).value="");
+  renderNutrition();
+}
+
+function removeFood(slot,idx){
+  todayLog.meals[slot].splice(idx,1);
+  saveNutritionLog();
+  renderNutrition();
+}
+
+function showYesterday(){
+  viewingYesterday=!viewingYesterday;
+  renderNutrition();
+}
+
+// Nutrition settings
+function showNutritionSettings(){
+  const fields=[
+    {key:"cal",    label:"Calories",    unit:"cal", default:1500},
+    {key:"protein",label:"Protein",     unit:"g",   default:110},
+    {key:"carbs",  label:"Carbs",       unit:"g",   default:145},
+    {key:"fat",    label:"Fat",         unit:"g",   default:52},
+    {key:"fiber",  label:"Fiber",       unit:"g",   default:25},
+    {key:"water",  label:"Water",       unit:"glasses",default:8},
+  ];
+  document.getElementById("settings-fields").innerHTML=fields.map(f=>`
+    <div>
+      <div style="font-size:12px;color:${C.gray};margin-bottom:4px;font-weight:600">${f.label} (${f.unit})</div>
+      <input id="setting-${f.key}" type="number" value="${nutritionTargets[f.key]}" style="width:100%;border:1.5px solid ${C.grayMid};border-radius:8px;padding:8px 12px;font-size:15px;outline:none"/>
+    </div>`).join("");
+  openModal("modal-nutrition-settings");
+}
+
+function saveNutritionSettings(){
+  ["cal","protein","carbs","fat","fiber","water"].forEach(k=>{
+    const val=parseInt(document.getElementById("setting-"+k).value);
+    if(val>0) nutritionTargets[k]=val;
+  });
+  storageSet("nutrition-targets",JSON.stringify(nutritionTargets));
+  closeModal("modal-nutrition-settings");
+  renderNutrition();
+}
+
+function resetNutritionSettings(){
+  nutritionTargets={cal:1500,protein:110,carbs:145,fat:52,fiber:25,water:8};
+  storageSet("nutrition-targets",JSON.stringify(nutritionTargets));
+  closeModal("modal-nutrition-settings");
+  renderNutrition();
+}
+
+// Nutrition history rendering
+function renderNutritionHistory(){
+  const daysOn=nutritionHistory.filter(e=>e.proteinGoalMet).length;
+  const avgProt=nutritionHistory.length?Math.round(nutritionHistory.reduce((s,e)=>s+(e.protein||0),0)/nutritionHistory.length):0;
+  const avgCal=nutritionHistory.length?Math.round(nutritionHistory.reduce((s,e)=>s+(e.cal||0),0)/nutritionHistory.length):0;
+  const avgWater=nutritionHistory.length?Math.round(nutritionHistory.reduce((s,e)=>s+(e.water||0),0)/nutritionHistory.length):0;
+
+  document.getElementById("nh-stats").innerHTML=[
+    {label:"Days Logged",value:nutritionHistory.length,color:C.tealMid},
+    {label:"Protein Goal",value:daysOn+"✓",color:C.green},
+    {label:"Avg Protein",value:avgProt+"g",color:C.gold},
+    {label:"Avg Calories",value:avgCal,color:C.coral},
+  ].map(s=>`<div style="background:rgba(255,255,255,.1);border-radius:10px;padding:8px 6px;text-align:center"><div style="color:${s.color};font-weight:800;font-size:17px;line-height:1">${s.value}</div><div style="color:rgba(255,255,255,.6);font-size:10px;margin-top:3px">${s.label}</div></div>`).join("");
+
+  const today=new Date();
+  const days=Array.from({length:30},(_,i)=>{const d=new Date(today);d.setDate(d.getDate()-(29-i));return d.toISOString().slice(0,10);});
+  const byDate={};nutritionHistory.forEach(e=>{byDate[e.date]=e;});
+
+  document.getElementById("nh-cal-labels").innerHTML=["S","M","T","W","T","F","S"].map(d=>`<div style="text-align:center;font-size:10px;color:${C.gray};font-weight:600">${d}</div>`).join("");
+  const startDow=new Date(days[0]+"T12:00:00").getDay();
+  const cells=[...Array.from({length:startDow},()=>`<div></div>`),...days.map(d=>{
+    const isToday=d===todayStr(),entry=byDate[d];
+    const bg=!entry?C.grayLight:entry.proteinGoalMet?C.greenLight:C.amberLight;
+    const border=isToday?`2px solid ${C.coral}`:entry?`1px solid ${entry.proteinGoalMet?C.green:C.amber}`:"1px solid transparent";
+    const dot=!entry?"":entry.proteinGoalMet?"🟢":"🟡";
+    return `<div style="aspect-ratio:1;border-radius:6px;background:${bg};border:${border};display:flex;align-items:center;justify-content:center;flex-direction:column">
+      <span style="font-size:9px;color:${C.gray};font-weight:${isToday?800:400}">${parseInt(d.slice(8))}</span>
+      ${entry?`<span style="font-size:8px">${dot}</span>`:""}
+    </div>`;
+  })];
+  document.getElementById("nh-cal-grid").innerHTML=cells.join("");
+
+  const daysEl=document.getElementById("nh-days");
+  if(nutritionHistory.length===0){ daysEl.innerHTML=`<div style="background:#fff;border-radius:14px;padding:24px 16px;text-align:center;color:${C.gray}">No nutrition days logged yet. Start tracking today!</div>`; }
+  else {
+    daysEl.innerHTML=[...nutritionHistory].reverse().map(e=>`
+      <div style="background:#fff;border-radius:12px;padding:12px 14px;margin-bottom:8px;box-shadow:0 1px 4px rgba(0,0,0,.05)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <div style="font-weight:700;font-size:13px;color:${C.dark}">${fmtDate(e.date)}</div>
+          <div style="font-size:12px;font-weight:700;color:${e.proteinGoalMet?C.green:C.amber}">${e.proteinGoalMet?"✓ Protein goal met":"⚠ Protein goal missed"}</div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(8,1fr);gap:4px;text-align:center">
+          ${[["Cal",e.cal||0,""],["Protein",e.protein||0,"g"],["Carbs",e.carbs||0,"g"],["Fat",e.fat||0,"g"],["Water",e.water||0,"🥤"]].map(([l,v,u])=>`<div><div style="font-weight:700;font-size:12px;color:${C.navy}">${v}${u}</div><div style="font-size:9px;color:${C.gray}">${l}</div></div>`).join("")}
+          <div><div style="font-weight:700;font-size:12px;color:#ec4899">${e.creatine||0}g</div><div style="font-size:9px;color:${C.gray}">Creatine</div></div>
+          <div><div style="font-weight:700;font-size:12px;color:#16a34a">${e.gruns?"✓":"—"}</div><div style="font-size:9px;color:${C.gray}">Grüns</div></div>
+          <div><div style="font-weight:700;font-size:12px;color:#7c3aed">${e.nutrops?"✓":"—"}</div><div style="font-size:9px;color:${C.gray}">Nutrops</div></div>
+        </div>
+      </div>`).join("");
+  }
+
+  document.getElementById("nh-buttons").innerHTML=nutritionHistory.length>0?`
+    <button onclick="doNutritionExport(false)" style="width:100%;background:${C.teal};color:#fff;border:none;border-radius:10px;padding:11px 0;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:8px">⬇️ Download as CSV</button>
+    <button onclick="clearNutritionHistory()" style="width:100%;background:none;border:1px solid ${C.grayMid};border-radius:10px;padding:10px 0;color:${C.gray};font-size:13px;cursor:pointer">Clear all history</button>`:"";
+}
+
+function clearNutritionHistory(){ if(!confirm("Clear all nutrition history?")) return; nutritionHistory=[]; storageDelete("nutrition-history"); renderNutritionHistory(); }
+
+// ═══════════════════════════════════════════════════════════ EXPORT ═══════════
+
+function csvRow(r){ return r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(","); }
+function toCSV(rows){ return rows.map(csvRow).join("\n"); }
+
+function doWorkoutExport(fromModal){
+  if(fromModal) closeWorkoutModal();
+  const pm=prevMonthLabel();
+  const rows=[["#","Date","Day","Workout","Duration","Calories","Exercises"],...workoutHistory.map((e,i)=>[i+1,fmtDate(e.date),new Date(e.date+"T12:00:00").toLocaleDateString("en-US",{weekday:"long"}),e.workoutLabel,fmt(e.durationSecs||0),e.calories,e.exercises])];
+  const totalC=workoutHistory.reduce((s,e)=>s+(e.calories||0),0);
+  const totalM=workoutHistory.reduce((s,e)=>s+Math.round((e.durationSecs||0)/60),0);
+  const sum=[["Metric","Value"],["Period",pm],["Total Sessions",workoutHistory.length],["Active Days",new Set(workoutHistory.map(e=>e.date)).size],["Total Calories",totalC],["Total Minutes",totalM]];
+  const csv="WORKOUT SESSION LOG\n"+toCSV(rows)+"\n\n\nSUMMARY\n"+toCSV(sum);
+  downloadCSV(csv,"Wellness_Workouts_"+pm.replace(" ","_")+".csv");
+}
+
+function doNutritionExport(fromModal){
+  if(fromModal) closeNutritionModal();
+  const pm=prevMonthLabel();
+  const rows=[["Date","Day","Calories","Protein(g)","Carbs(g)","Fat(g)","Fiber(g)","Water(glasses)","Creatine(g)","Gruns","Nutrops","Protein Goal Met"],...nutritionHistory.map(e=>[fmtDate(e.date),new Date(e.date+"T12:00:00").toLocaleDateString("en-US",{weekday:"long"}),e.cal||0,e.protein||0,e.carbs||0,e.fat||0,e.fiber||0,e.water||0,e.creatine||0,e.gruns?"Yes":"No",e.nutrops?"Yes":"No",e.proteinGoalMet?"Yes":"No"])];
+  const daysOn=nutritionHistory.filter(e=>e.proteinGoalMet).length;
+  const avgP=nutritionHistory.length?Math.round(nutritionHistory.reduce((s,e)=>s+(e.protein||0),0)/nutritionHistory.length):0;
+  const avgC=nutritionHistory.length?Math.round(nutritionHistory.reduce((s,e)=>s+(e.cal||0),0)/nutritionHistory.length):0;
+  const sum=[["Metric","Value"],["Period",pm],["Days Logged",nutritionHistory.length],["Days Protein Goal Met",daysOn],["Avg Daily Protein (g)",avgP],["Avg Daily Calories",avgC],["Daily Protein Target",nutritionTargets.protein+"g"],["Daily Calorie Target",nutritionTargets.cal]];
+  const csv="NUTRITION LOG\n"+toCSV(rows)+"\n\n\nSUMMARY\n"+toCSV(sum);
+  downloadCSV(csv,"Wellness_Nutrition_"+pm.replace(" ","_")+".csv");
+}
+
+function downloadCSV(csv,filename){
+  const blob=new Blob([csv],{type:"text/csv;charset=utf-8;"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a"); a.href=url; a.download=filename;
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{URL.revokeObjectURL(url);document.body.removeChild(a);},100);
+}
+
+// ═══════════════════════════════════════════════════════════ FIRST OF MONTH ═══
+
+function checkFirstOfMonth(){
+  const today=new Date();
+  if(today.getDate()!==1) return;
+  const thisMonth=today.getFullYear()+"-"+(today.getMonth()+1);
+  if(workoutHistory.length>0&&storageGet("last-w-export")!==thisMonth){
+    storageSet("last-w-export",thisMonth); setTimeout(()=>showWorkoutExportModal(),600);
+  }
+  if(nutritionHistory.length>0&&storageGet("last-n-export")!==thisMonth){
+    storageSet("last-n-export",thisMonth); setTimeout(()=>showNutritionExportModal(),2000);
+  }
+}
+
+function showWorkoutExportModal(){
+  const pm=prevMonthLabel();
+  document.getElementById("we-modal-month").innerHTML=`It's the 1st! Download your <strong>${pm}</strong> workout history.`;
+  const totalC=workoutHistory.reduce((s,e)=>s+(e.calories||0),0);
+  document.getElementById("we-modal-stats").innerHTML=[{label:"Sessions",value:workoutHistory.length},{label:"Calories",value:totalC},{label:"Minutes",value:workoutHistory.reduce((s,e)=>s+Math.round((e.durationSecs||0)/60),0)},{label:"Active Days",value:new Set(workoutHistory.map(e=>e.date)).size}].map(s=>`<div style="text-align:center"><div style="font-weight:800;font-size:18px;color:${C.navy}">${s.value}</div><div style="font-size:11px;color:${C.gray}">${s.label}</div></div>`).join("");
+  document.getElementById("modal-workout-export").style.display="flex";
+}
+function closeWorkoutModal(){ document.getElementById("modal-workout-export").style.display="none"; }
+
+function showNutritionExportModal(){
+  const pm=prevMonthLabel();
+  document.getElementById("ne-modal-month").innerHTML=`Download your <strong>${pm}</strong> nutrition log.`;
+  const daysOn=nutritionHistory.filter(e=>e.proteinGoalMet).length;
+  document.getElementById("ne-modal-stats").innerHTML=[{label:"Days Logged",value:nutritionHistory.length},{label:"Protein Goal ✓",value:daysOn},{label:"Avg Protein",value:nutritionHistory.length?Math.round(nutritionHistory.reduce((s,e)=>s+(e.protein||0),0)/nutritionHistory.length)+"g":"—"},{label:"Avg Cal",value:nutritionHistory.length?Math.round(nutritionHistory.reduce((s,e)=>s+(e.cal||0),0)/nutritionHistory.length):"—"}].map(s=>`<div style="text-align:center"><div style="font-weight:800;font-size:18px;color:${C.navy}">${s.value}</div><div style="font-size:11px;color:${C.gray}">${s.label}</div></div>`).join("");
+  document.getElementById("modal-nutrition-export").style.display="flex";
+}
+function closeNutritionModal(){ document.getElementById("modal-nutrition-export").style.display="none"; }
+
+// ═══════════════════════════════════════════════════ STEPS & LEVO FUNCTIONS ══
+
+function saveSteps(){
+  const val = parseInt(document.getElementById("w-steps-input").value)||0;
+  if(val<=0){ alert("Please enter your step count."); return; }
+  todayLog.steps = val;
+  saveNutritionLog();
+  document.getElementById("w-steps-display").textContent = val.toLocaleString()+" steps";
+  document.getElementById("w-steps-display").style.color = val>=10000?C.green:val>=7500?C.amber:C.gray;
+  document.getElementById("w-steps-input").value="";
+}
+
+function renderStepsField(){
+  const steps = todayLog.steps||0;
+  document.getElementById("w-steps-display").textContent = steps>0?steps.toLocaleString()+" steps":"Not logged yet";
+  document.getElementById("w-steps-display").style.color = steps>=10000?C.green:steps>=7500?C.amber:C.gray;
+  if(steps>0) document.getElementById("w-steps-input").placeholder = steps.toLocaleString();
+}
+
+function saveLevo(){
+  const val = document.getElementById("n-levo-input").value;
+  if(!val){ alert("Please select a time."); return; }
+  todayLog.levoTime = val;
+  saveNutritionLog();
+  renderLevoField();
+}
+
+function clearLevo(){
+  todayLog.levoTime = "";
+  saveNutritionLog();
+  renderLevoField();
+}
+
+function renderLevoField(){
+  const t = todayLog.levoTime||"";
+  const status = document.getElementById("n-levo-status");
+  const clearBtn = document.getElementById("n-levo-clear");
+  if(t){
+    // Format 24h to 12h
+    const [h,m]=t.split(":"); const hr=parseInt(h);
+    const display=(hr%12||12)+":"+m+(hr<12?"am":"pm");
+    status.textContent="✓ Taken at "+display; status.style.color=C.green;
+    clearBtn.style.display="block";
+    document.getElementById("n-levo-input").value=t;
+  } else {
+    status.textContent="Not logged"; status.style.color=C.gray;
+    clearBtn.style.display="none";
+  }
+}
+
+// ═══════════════════════════════════════════════════════════ SLEEP MODULE ═════
+
+let sleepData = {}; // keyed by date string YYYY-MM-DD
+let currentSleepDate = todayStr();
+let sleepSliderValues = {stress:null,mood:null,energy:null,chatter:null,refreshed:null};
+
+function loadSleepData(){
+  const raw=storageGet("sleep-data");
+  if(raw){ try{ sleepData=JSON.parse(raw); }catch(e){ sleepData={}; } }
+}
+
+function saveSleepData(){
+  storageSet("sleep-data",JSON.stringify(sleepData));
+}
+
+function getSleepEntry(date){
+  return sleepData[date] || {date,evening:{},morning:{},score:null};
+}
+
+// ── Rendering ────────────────────────────────────────────────────────────────
+
+function renderSleepModule(){
+  loadSleepData();
+  currentSleepDate = todayStr();
+  try{ renderMonthStrip(); }     catch(e){ console.error("renderMonthStrip:",e); }
+  try{ renderAutoPull(); }       catch(e){ console.error("renderAutoPull:",e); }
+  try{ renderSleepSliders(); }   catch(e){ console.error("renderSleepSliders:",e); }
+  try{ renderRefreshedSlider(); }catch(e){ console.error("renderRefreshedSlider:",e); }
+  try{ loadEveningForm(); }      catch(e){ console.error("loadEveningForm:",e); }
+  try{ loadMorningForm(); }      catch(e){ console.error("loadMorningForm:",e); }
+  try{ renderSleepScoreCard(); } catch(e){ console.error("renderSleepScoreCard:",e); }
+}
+
+function renderMonthStrip(){
+  const today=new Date();
+  const yr=today.getFullYear(), mo=today.getMonth();
+  const daysInMonth=new Date(yr,mo+1,0).getDate();
+  document.getElementById("sl-month-label").textContent=today.toLocaleDateString("en-US",{month:"long",year:"numeric"});
+
+  const strip=document.getElementById("sl-month-strip");
+  strip.innerHTML="";
+  for(let d=1;d<=daysInMonth;d++){
+    const ds=`${yr}-${String(mo+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+    const entry=sleepData[ds];
+    const isToday=ds===todayStr();
+    const isFuture=new Date(ds+"T12:00:00")>today;
+    const score=entry?.score;
+    const bg=isFuture?"#E5E7EB":!score?"#F0EEF8":score>=80?"#EAF4EB":score>=60?"#FEF3C7":score>=40?"#FED7AA":"#FEE2E2";
+    const border=isToday?"2px solid #7B6EA6":"2px solid transparent";
+    const btn=document.createElement("button");
+    btn.style.cssText=`min-width:36px;height:44px;border-radius:8px;background:${bg};border:${border};cursor:${isFuture?"default":"pointer"};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;flex-shrink:0`;
+    btn.innerHTML=`<span style="font-size:10px;font-weight:${isToday?800:500};color:#1B3A5C">${d}</span>${score?`<span style="font-size:9px;font-weight:700;color:${score>=80?C.green:score>=60?C.gold:C.coral}">${score}</span>`:""}`;
+    if(!isFuture) btn.onclick=()=>loadSleepDay(ds);
+    strip.appendChild(btn);
+  }
+  // Scroll to today
+  const todayDay=today.getDate();
+  strip.scrollLeft=(todayDay-4)*40;
+}
+
+function loadSleepDay(ds){
+  currentSleepDate=ds;
+  // Highlight selected
+  document.querySelectorAll("#sl-month-strip button").forEach((b,i)=>{
+    const day=i+1;
+    const isSelected=ds.endsWith("-"+String(day).padStart(2,"0"));
+    b.style.border=isSelected?"2px solid #7B6EA6":"2px solid transparent";
+  });
+  renderAutoPull();
+  loadEveningForm();
+  loadMorningForm();
+  renderSleepScoreCard();
+}
+
+function renderAutoPull(){
+  // Pull from nutritionHistory for the current sleep date
+  const nutEntry = nutritionHistory.find(e=>e.date===currentSleepDate) ||
+    (currentSleepDate===todayStr()?{...calcTodayTotals(),water:todayLog.water,gruns:todayLog.gruns,nutrops:todayLog.nutrops,creatine:todayLog.creatine,levoTime:todayLog.levoTime}:null);
+  const wEntry = workoutHistory.filter(e=>e.date===currentSleepDate);
+
+  const levoDisplay = nutEntry?.levoTime ? fmtTime12(nutEntry.levoTime) : "—";
+  const stepsEntry = nutritionHistory.find(e=>e.date===currentSleepDate);
+  const steps = (currentSleepDate===todayStr()?todayLog.steps:stepsEntry?.steps)||0;
+
+  document.getElementById("sl-autopull").innerHTML=[
+    {label:"💊 Levo",    value:levoDisplay},
+    {label:"💧 Water",   value:nutEntry?Math.round((nutEntry.water||0)*8)+"oz":"—"},
+    {label:"🥗 Protein", value:nutEntry?(nutEntry.proteinGoalMet?"✓ Goal met":"~"+Math.round(nutEntry.protein||0)+"g"):"—"},
+    {label:"🌾 Fiber",   value:nutEntry?(nutEntry.fiber>=nutritionTargets.fiber?"✓ Goal met":"~"+Math.round(nutEntry.fiber||0)+"g"):"—"},
+    {label:"🐻 Grüns",  value:nutEntry?(nutEntry.gruns?"✓":"—"):"—"},
+    {label:"💜 Nutrops", value:nutEntry?(nutEntry.nutrops?"✓":"—"):"—"},
+    {label:"💗 Creatine",value:nutEntry?((nutEntry.creatine||0)+"g"):"—"},
+    {label:"👟 Steps",   value:steps>0?steps.toLocaleString():"—"},
+    {label:"💪 Workout", value:wEntry.length>0?wEntry.map(e=>WORKOUT_ICONS[e.workoutKey]||"💪").join(" "):"Rest day"},
+    {label:"🔥 Intensity",value:wEntry.length>0?(wEntry[wEntry.length-1].intensity||"—")+"/10":"—"},
+  ].map(({label,value})=>`<div style="background:rgba(123,110,166,.08);border-radius:8px;padding:6px 8px">
+    <div style="font-size:10px;color:#7B6EA6;font-weight:600">${label}</div>
+    <div style="font-size:13px;font-weight:700;color:#1B3A5C;margin-top:1px">${value}</div>
+  </div>`).join("");
+}
+
+function fmtTime12(t){
+  if(!t) return "—";
+  const [h,m]=t.split(":"); const hr=parseInt(h);
+  return (hr%12||12)+":"+m+(hr<12?"am":"pm");
+}
+
+// ── Sliders ───────────────────────────────────────────────────────────────────
+
+function makeSlider(id,label,key,container){
+  const current = sleepSliderValues[key]||null;
+  const div=document.createElement("div"); div.style.marginBottom="12px";
+  div.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+    <div style="font-size:12px;color:#6B7280;font-weight:600">${label}</div>
+    <div id="${id}-val" style="font-size:13px;font-weight:700;color:#7B6EA6;min-width:20px;text-align:right">${current||"—"}</div>
+  </div>
+  <div style="display:flex;gap:6px">
+    ${[1,2,3,4,5].map(n=>`<button onclick="setSliderVal('${key}','${id}',${n})" id="${id}-btn-${n}"
+      style="flex:1;height:36px;border-radius:8px;border:1.5px solid ${(current===n)?'#7B6EA6':'#E5E7EB'};
+      background:${(current===n)?'#7B6EA6':'#fff'};color:${(current===n)?'#fff':'#6B7280'};
+      font-weight:700;font-size:14px;cursor:pointer;transition:all .15s">${n}</button>`).join("")}
+  </div>`;
+  container.appendChild(div);
+}
+
+function setSliderVal(key,id,val){
+  sleepSliderValues[key]=val;
+  document.getElementById(id+"-val").textContent=val;
+  [1,2,3,4,5].forEach(n=>{
+    const btn=document.getElementById(`${id}-btn-${n}`);
+    if(!btn) return;
+    btn.style.background=n===val?"#7B6EA6":"#fff";
+    btn.style.borderColor=n===val?"#7B6EA6":"#E5E7EB";
+    btn.style.color=n===val?"#fff":"#6B7280";
+  });
+}
+
+function renderSleepSliders(){
+  const container=document.getElementById("sl-sliders");
+  container.innerHTML="";
+  makeSlider("sl-stress", "😰 Stress (1=low, 5=high)",  "stress",  container);
+  makeSlider("sl-mood",   "😊 Mood (1=low, 5=great)",   "mood",    container);
+  makeSlider("sl-energy", "⚡ Energy (1=low, 5=high)",  "energy",  container);
+  makeSlider("sl-chatter","🧠 Mental Chatter (1=quiet, 5=racing)","chatter",container);
+}
+
+function renderRefreshedSlider(){
+  const container=document.getElementById("sl-refreshed-slider");
+  container.innerHTML="";
+  const current=sleepSliderValues.refreshed||null;
+  container.innerHTML=[1,2,3,4,5].map(n=>`<button onclick="setSliderVal('refreshed','sl-refreshed',${n})" id="sl-refreshed-btn-${n}"
+    style="width:calc(20% - 3px);height:34px;border-radius:6px;border:1.5px solid ${current===n?'#7B6EA6':'#E5E7EB'};
+    background:${current===n?'#7B6EA6':'#fff'};color:${current===n?'#fff':'#6B7280'};
+    font-weight:700;font-size:13px;cursor:pointer;display:inline-block;margin-right:3px">${n}</button>`).join("");
+}
+
+// ── Toggle helpers ────────────────────────────────────────────────────────────
+
+function setSleepToggle(field,val){
+  const entry=getSleepEntry(currentSleepDate);
+  entry.evening[field]=val;
+  sleepData[currentSleepDate]=entry;
+  saveSleepData();
+
+  // Update button styles
+  const yBtn=document.getElementById(`sl-${field.slice(0,4)}-y`)||document.getElementById(`sl-grat-y`)||document.getElementById(`sl-pray-y`);
+  // Use specific IDs
+  const ids={caffeine:["sl-caff-y","sl-caff-n"],wine:["sl-wine-y","sl-wine-n"],feals:["sl-feals-y","sl-feals-n"],gratitude:["sl-grat-y","sl-grat-n"],prayer:["sl-pray-y","sl-pray-n"]};
+  const [yId,nId]=ids[field]||[];
+  if(yId&&nId){
+    document.getElementById(yId).style.background=val?"#7B6EA6":"#fff";
+    document.getElementById(yId).style.color=val?"#fff":"#6B7280";
+    document.getElementById(yId).style.borderColor=val?"#7B6EA6":"#E5E7EB";
+    document.getElementById(nId).style.background=!val?"#EDF2F7":"#fff";
+    document.getElementById(nId).style.color=!val?"#1B3A5C":"#6B7280";
+    document.getElementById(nId).style.borderColor=!val?"#1B3A5C":"#E5E7EB";
+  }
+  // Show/hide detail panels
+  if(field==="wine"){
+    const d=document.getElementById("sl-wine-detail");
+    d.style.display=val?"grid":"none";
+  }
+  if(field==="feals"){
+    const d=document.getElementById("sl-feals-detail");
+    d.style.display=val?"block":"none";
+  }
+}
+
+function setSleepFeals(dose){
+  const entry=getSleepEntry(currentSleepDate);
+  entry.evening.fealsDose=dose;
+  sleepData[currentSleepDate]=entry;
+  saveSleepData();
+  ["half","full"].forEach(d=>{
+    const btn=document.getElementById("sl-feals-"+d);
+    btn.style.background=d===dose?"#7B6EA6":"#fff";
+    btn.style.color=d===dose?"#fff":"#6B7280";
+    btn.style.borderColor=d===dose?"#7B6EA6":"#E5E7EB";
+  });
+}
+
+// ── Load form from saved data ──────────────────────────────────────────────────
+
+function loadEveningForm(){
+  const entry=getSleepEntry(currentSleepDate);
+  const ev=entry.evening||{};
+  // Dinner time
+  if(ev.dinnerTime) document.getElementById("sl-dinner-time").value=ev.dinnerTime;
+  // Toggles
+  if(ev.caffeine!==undefined) setSleepToggle("caffeine",ev.caffeine);
+  if(ev.wine!==undefined){ setSleepToggle("wine",ev.wine); if(ev.wine){
+    if(ev.wineGlasses) document.getElementById("sl-wine-glasses").value=ev.wineGlasses;
+    if(ev.wineTime) document.getElementById("sl-wine-time").value=ev.wineTime;
+  }}
+  if(ev.feals!==undefined){ setSleepToggle("feals",ev.feals); if(ev.feals&&ev.fealsDose) setSleepFeals(ev.fealsDose); }
+  if(ev.gratitude!==undefined) setSleepToggle("gratitude",ev.gratitude);
+  if(ev.prayer!==undefined) setSleepToggle("prayer",ev.prayer);
+  // Sliders
+  ["stress","mood","energy","chatter"].forEach(k=>{ if(ev[k]) setSliderVal(k,"sl-"+k,ev[k]); });
+  // Notes
+  if(ev.notes) document.getElementById("sl-notes").value=ev.notes;
+}
+
+function loadMorningForm(){
+  const entry=getSleepEntry(currentSleepDate);
+  const mo=entry.morning||{};
+  const fields={
+    "sl-apple-score":"appleScore","sl-bedtime":"bedtime","sl-wake-time":"wakeTime",
+    "sl-total-sleep":"totalSleep","sl-rem":"rem","sl-core":"core","sl-deep":"deep",
+    "sl-hr":"hr","sl-hrv":"hrv","sl-resp":"resp","sl-wakeups":"wakeups","sl-bathroom":"bathroom"
+  };
+  Object.entries(fields).forEach(([id,key])=>{ if(mo[key]!==undefined) document.getElementById(id).value=mo[key]; });
+  if(mo.refreshed) setSliderVal("refreshed","sl-refreshed",mo.refreshed);
+}
+
+// ── Save functions ─────────────────────────────────────────────────────────────
+
+function saveSleepEvening(){
+  const entry=getSleepEntry(currentSleepDate);
+  entry.evening={
+    dinnerTime: document.getElementById("sl-dinner-time").value||"",
+    caffeine:   entry.evening.caffeine,
+    wine:       entry.evening.wine,
+    wineGlasses:parseFloat(document.getElementById("sl-wine-glasses").value)||0,
+    wineTime:   document.getElementById("sl-wine-time").value||"",
+    feals:      entry.evening.feals,
+    fealsDose:  entry.evening.fealsDose||"",
+    stress:     sleepSliderValues.stress,
+    mood:       sleepSliderValues.mood,
+    energy:     sleepSliderValues.energy,
+    chatter:    sleepSliderValues.chatter,
+    gratitude:  entry.evening.gratitude,
+    prayer:     entry.evening.prayer,
+    notes:      document.getElementById("sl-notes").value||"",
+  };
+  sleepData[currentSleepDate]=entry;
+  saveSleepData();
+  // Visual feedback
+  const btn=event.target; btn.textContent="✓ Saved!"; btn.style.background=C.green;
+  setTimeout(()=>{ btn.textContent="💾 Save Evening Entry"; btn.style.background="#7B6EA6"; },2000);
+}
+
+function saveSleepMorning(){
+  const entry=getSleepEntry(currentSleepDate);
+  entry.morning={
+    appleScore: parseInt(document.getElementById("sl-apple-score").value)||null,
+    bedtime:    document.getElementById("sl-bedtime").value||"",
+    wakeTime:   document.getElementById("sl-wake-time").value||"",
+    totalSleep: parseFloat(document.getElementById("sl-total-sleep").value)||null,
+    rem:        parseFloat(document.getElementById("sl-rem").value)||null,
+    core:       parseFloat(document.getElementById("sl-core").value)||null,
+    deep:       parseFloat(document.getElementById("sl-deep").value)||null,
+    hr:         parseInt(document.getElementById("sl-hr").value)||null,
+    hrv:        parseInt(document.getElementById("sl-hrv").value)||null,
+    resp:       parseFloat(document.getElementById("sl-resp").value)||null,
+    wakeups:    parseInt(document.getElementById("sl-wakeups").value)||0,
+    bathroom:   parseInt(document.getElementById("sl-bathroom").value)||0,
+    refreshed:  sleepSliderValues.refreshed,
+  };
+  entry.score = calcSleepScore(entry);
+  sleepData[currentSleepDate]=entry;
+  saveSleepData();
+  renderSleepScoreCard();
+  renderMonthStrip();
+  const btn=event.target; btn.textContent="✓ Score Calculated!"; btn.style.background=C.green;
+  setTimeout(()=>{ btn.textContent="☀️ Save Morning Data & Calculate Score"; btn.style.background="#1B3A5C"; },2500);
+}
+
+// ── Sleep Score ───────────────────────────────────────────────────────────────
+
+function calcSleepScore(entry){
+  const mo=entry.morning||{};
+  let score=0, total=0;
+
+  // Apple Sleep Score — 30%
+  if(mo.appleScore!=null){ score+=mo.appleScore*0.30; total+=30; }
+
+  // Refreshed feeling — 25%
+  if(mo.refreshed!=null){ score+=((mo.refreshed/5)*100)*0.25; total+=25; }
+
+  // HRV vs 7-day rolling average — 20%
+  const hvs=Object.values(sleepData).map(e=>e.morning?.hrv).filter(v=>v>0);
+  if(mo.hrv&&hvs.length>=2){
+    const avg=hvs.slice(-7).reduce((s,v)=>s+v,0)/Math.min(7,hvs.length);
+    const pct=Math.min(100,Math.max(0,50+(mo.hrv-avg)/avg*100));
+    score+=pct*0.20; total+=20;
+  }
+
+  // Deep sleep — 15% (target 60 min = 1.0 hr)
+  if(mo.deep!=null){ score+=Math.min(100,(mo.deep/1.0)*100)*0.15; total+=15; }
+
+  // Wake-ups — 10% (0=100%, -10% per wakeup, min 0)
+  if(mo.wakeups!=null){ score+=Math.max(0,100-mo.wakeups*10)*0.10; total+=10; }
+
+  if(total===0) return null;
+  // Scale to 100 based on available data
+  return Math.round((score/total)*100);
+}
+
+function renderSleepScoreCard(){
+  const entry=getSleepEntry(currentSleepDate);
+  const card=document.getElementById("sl-score-card");
+  if(!entry.score){ card.style.display="none"; return; }
+
+  const s=entry.score;
+  const [bg,col,emoji,desc]=s>=80?["#EAF4EB",C.green,"🌟","Excellent"]:
+    s>=60?["#FEF3C7",C.gold,"😊","Good"]:
+    s>=40?["#FED7AA",C.amber,"😐","Fair"]:
+    ["#FEE2E2",C.red,"😴","Poor"];
+
+  card.style.display="block"; card.style.background=bg;
+  document.getElementById("sl-score-label").style.color=col;
+  document.getElementById("sl-score-value").textContent=emoji+" "+s;
+  document.getElementById("sl-score-value").style.color=col;
+  document.getElementById("sl-score-desc").textContent=desc+" sleep quality";
+  document.getElementById("sl-score-desc").style.color=col;
+
+  const mo=entry.morning||{};
+  const breakdown=[
+    mo.appleScore!=null?`Apple Score: ${mo.appleScore}/100`:"",
+    mo.refreshed!=null?`Refreshed: ${mo.refreshed}/5`:"",
+    mo.hrv!=null?`HRV: ${mo.hrv}ms`:"",
+    mo.deep!=null?`Deep Sleep: ${Math.round(mo.deep*60)}min`:"",
+    mo.wakeups!=null?`Wake-ups: ${mo.wakeups}`:"",
+  ].filter(Boolean).join("  ·  ");
+  document.getElementById("sl-score-breakdown").textContent=breakdown;
+
+  document.getElementById("sl-today-score").innerHTML=`<span style="color:${col};font-weight:800">${s} ${emoji}</span>`;
+}
+
+// ── History & Dashboard ────────────────────────────────────────────────────────
+
+function renderSleepHistory(){
+  loadSleepData();
+  const entries=Object.values(sleepData).filter(e=>e.morning?.appleScore).sort((a,b)=>a.date.localeCompare(b.date));
+  const avgScore=entries.length?Math.round(entries.reduce((s,e)=>s+(e.score||0),0)/entries.length):0;
+  const avgHRV=entries.filter(e=>e.morning?.hrv).length?Math.round(entries.filter(e=>e.morning?.hrv).reduce((s,e)=>s+e.morning.hrv,0)/entries.filter(e=>e.morning?.hrv).length):0;
+  const avgDeep=entries.filter(e=>e.morning?.deep).length?Math.round(entries.filter(e=>e.morning?.deep).reduce((s,e)=>s+e.morning.deep,0)/entries.filter(e=>e.morning?.deep).length*60):0;
+  const bestScore=entries.length?Math.max(...entries.map(e=>e.score||0)):0;
+
+  document.getElementById("sh-stats").innerHTML=[
+    {label:"Nights Logged",value:entries.length,color:C.tealMid},
+    {label:"Avg Score",value:avgScore,color:C.lavender},
+    {label:"Avg HRV",value:avgHRV+"ms",color:C.green},
+    {label:"Best Score",value:bestScore,color:C.gold},
+  ].map(s=>`<div style="background:rgba(255,255,255,.1);border-radius:10px;padding:8px 6px;text-align:center">
+    <div style="color:${s.color};font-weight:800;font-size:17px;line-height:1">${s.value}</div>
+    <div style="color:rgba(255,255,255,.6);font-size:10px;margin-top:3px">${s.label}</div>
+  </div>`).join("");
+
+  // Draw charts
+  setTimeout(()=>{
+    drawLineChart("sh-score-chart", entries.map(e=>e.date.slice(5)), entries.map(e=>e.score||0), "#7B6EA6", "Sleep Score");
+    drawLineChart("sh-hrv-chart",   entries.filter(e=>e.morning?.hrv).map(e=>e.date.slice(5)), entries.filter(e=>e.morning?.hrv).map(e=>e.morning.hrv), C.green, "HRV (ms)");
+    drawBarChart("sh-stages-chart", entries.slice(-14).map(e=>e.date.slice(5)),
+      entries.slice(-14).map(e=>Math.round((e.morning?.rem||0)*60)),
+      entries.slice(-14).map(e=>Math.round((e.morning?.core||0)*60)),
+      entries.slice(-14).map(e=>Math.round((e.morning?.deep||0)*60)));
+    renderCorrelations(entries);
+    renderInsights(entries);
+  },100);
+
+  document.getElementById("sh-export-btn").innerHTML=entries.length>0?
+    `<button onclick="exportSleepData()" style="width:100%;background:#7B6EA6;color:#fff;border:none;border-radius:10px;padding:11px 0;font-size:14px;font-weight:700;cursor:pointer">⬇️ Download Sleep Data as CSV</button>`:"";
+}
+
+// ── Simple canvas charts ───────────────────────────────────────────────────────
+
+function drawLineChart(canvasId,labels,values,color,title){
+  const canvas=document.getElementById(canvasId);
+  if(!canvas||!values.length) return;
+  const ctx=canvas.getContext("2d");
+  const W=canvas.offsetWidth||320, H=parseInt(canvas.getAttribute("height"))||100;
+  canvas.width=W; canvas.height=H;
+  ctx.clearRect(0,0,W,H);
+  if(values.length<2) return;
+
+  const pad={top:10,right:10,bottom:24,left:30};
+  const w=W-pad.left-pad.right, h=H-pad.top-pad.bottom;
+  const min=Math.min(...values), max=Math.max(...values);
+  const range=max-min||1;
+
+  const xStep=w/(values.length-1);
+  const yScale=v=>pad.top+h-(v-min)/range*h;
+
+  // Grid lines
+  ctx.strokeStyle="#E5E7EB"; ctx.lineWidth=1;
+  [0,.25,.5,.75,1].forEach(t=>{ ctx.beginPath(); const y=pad.top+h*t; ctx.moveTo(pad.left,y); ctx.lineTo(pad.left+w,y); ctx.stroke(); });
+
+  // Line
+  ctx.beginPath(); ctx.strokeStyle=color; ctx.lineWidth=2; ctx.lineJoin="round";
+  values.forEach((v,i)=>{ const x=pad.left+i*xStep,y=yScale(v); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
+  ctx.stroke();
+
+  // Points
+  values.forEach((v,i)=>{
+    const x=pad.left+i*xStep,y=yScale(v);
+    ctx.beginPath(); ctx.fillStyle=color; ctx.arc(x,y,3,0,Math.PI*2); ctx.fill();
+  });
+
+  // Labels (every few)
+  ctx.fillStyle="#6B7280"; ctx.font="9px system-ui"; ctx.textAlign="center";
+  const step=Math.max(1,Math.floor(labels.length/6));
+  labels.forEach((l,i)=>{ if(i%step===0) ctx.fillText(l,pad.left+i*xStep,H-4); });
+
+  // Y axis min/max
+  ctx.textAlign="right"; ctx.fillText(Math.round(max),pad.left-2,pad.top+6);
+  ctx.fillText(Math.round(min),pad.left-2,H-pad.bottom);
+}
+
+function drawBarChart(canvasId,labels,rem,core,deep){
+  const canvas=document.getElementById(canvasId);
+  if(!canvas||!labels.length) return;
+  const ctx=canvas.getContext("2d");
+  const W=canvas.offsetWidth||320, H=parseInt(canvas.getAttribute("height"))||120;
+  canvas.width=W; canvas.height=H;
+  ctx.clearRect(0,0,W,H);
+
+  const pad={top:10,right:8,bottom:24,left:30};
+  const w=W-pad.left-pad.right, h=H-pad.top-pad.bottom;
+  const maxV=Math.max(...rem,...core,...deep,60)||120;
+  const barW=Math.max(4,w/labels.length-3);
+
+  labels.forEach((l,i)=>{
+    const x=pad.left+i*(w/labels.length);
+    const drawBar=(val,col,yOffset)=>{
+      const barH=Math.round((val/maxV)*h);
+      ctx.fillStyle=col; ctx.fillRect(x,pad.top+h-yOffset-barH,barW,barH);
+    };
+    // Stacked: deep bottom, core middle, rem top
+    const deepH=Math.round((deep[i]/maxV)*h);
+    const coreH=Math.round((core[i]/maxV)*h);
+    const remH=Math.round((rem[i]/maxV)*h);
+    ctx.fillStyle="#3A7D44"; ctx.fillRect(x,pad.top+h-deepH,barW,deepH);
+    ctx.fillStyle="#2A7D6E"; ctx.fillRect(x,pad.top+h-deepH-coreH,barW,coreH);
+    ctx.fillStyle="#7B6EA6"; ctx.fillRect(x,pad.top+h-deepH-coreH-remH,barW,remH);
+  });
+
+  // Labels
+  ctx.fillStyle="#6B7280"; ctx.font="9px system-ui"; ctx.textAlign="center";
+  const step=Math.max(1,Math.floor(labels.length/5));
+  labels.forEach((l,i)=>{ if(i%step===0) ctx.fillText(l,pad.left+i*(w/labels.length)+barW/2,H-4); });
+
+  // Legend
+  [["#7B6EA6","REM"],["#2A7D6E","Core"],["#3A7D44","Deep"]].forEach(([col,lbl],i)=>{
+    ctx.fillStyle=col; ctx.fillRect(pad.left+i*55,2,10,8);
+    ctx.fillStyle="#6B7280"; ctx.textAlign="left"; ctx.font="9px system-ui";
+    ctx.fillText(lbl,pad.left+i*55+13,10);
+  });
+}
+
+// ── Correlations & Insights ────────────────────────────────────────────────────
+
+function renderCorrelations(entries){
+  const container=document.getElementById("sh-correlations");
+  if(entries.length<5){ container.innerHTML=`<div style="color:${C.gray};font-size:13px;text-align:center;padding:12px">Log at least 5 nights to see correlations.</div>`; return; }
+
+  const correlations=[];
+
+  // Wine vs sleep score
+  const withWine=entries.filter(e=>e.evening?.wine===true&&e.score);
+  const noWine=entries.filter(e=>e.evening?.wine===false&&e.score);
+  if(withWine.length>=2&&noWine.length>=2){
+    const wineAvg=Math.round(withWine.reduce((s,e)=>s+e.score,0)/withWine.length);
+    const noWineAvg=Math.round(noWine.reduce((s,e)=>s+e.score,0)/noWine.length);
+    const diff=noWineAvg-wineAvg;
+    correlations.push({label:"🍷 Wine nights",a:`Avg score: ${wineAvg}`,b:`No wine: ${noWineAvg}`,diff,better:diff>0?"No wine":"Wine"});
+  }
+
+  // Caffeine after noon
+  const withCaff=entries.filter(e=>e.evening?.caffeine===true&&e.score);
+  const noCaff=entries.filter(e=>e.evening?.caffeine===false&&e.score);
+  if(withCaff.length>=2&&noCaff.length>=2){
+    const ca=Math.round(withCaff.reduce((s,e)=>s+e.score,0)/withCaff.length);
+    const na=Math.round(noCaff.reduce((s,e)=>s+e.score,0)/noCaff.length);
+    correlations.push({label:"☕ Caffeine after noon",a:`Avg score: ${ca}`,b:`No caffeine: ${na}`,diff:na-ca,better:na>ca?"No caffeine":"Caffeine"});
+  }
+
+  // Exercise vs no exercise
+  const withEx=entries.filter(e=>workoutHistory.some(w=>w.date===e.date)&&e.score);
+  const noEx=entries.filter(e=>!workoutHistory.some(w=>w.date===e.date)&&e.score);
+  if(withEx.length>=2&&noEx.length>=2){
+    const ea=Math.round(withEx.reduce((s,e)=>s+e.score,0)/withEx.length);
+    const na=Math.round(noEx.reduce((s,e)=>s+e.score,0)/noEx.length);
+    correlations.push({label:"💪 Exercise days",a:`Avg score: ${ea}`,b:`Rest days: ${na}`,diff:ea-na,better:ea>na?"Exercise":"Rest"});
+  }
+
+  // Stress level
+  const lowStress=entries.filter(e=>e.evening?.stress<=2&&e.score);
+  const highStress=entries.filter(e=>e.evening?.stress>=4&&e.score);
+  if(lowStress.length>=2&&highStress.length>=2){
+    const la=Math.round(lowStress.reduce((s,e)=>s+e.score,0)/lowStress.length);
+    const ha=Math.round(highStress.reduce((s,e)=>s+e.score,0)/highStress.length);
+    correlations.push({label:"😰 Stress (low vs high)",a:`Low stress: ${la}`,b:`High stress: ${ha}`,diff:la-ha,better:la>ha?"Low stress":"High stress"});
+  }
+
+  if(correlations.length===0){ container.innerHTML=`<div style="color:${C.gray};font-size:13px;text-align:center;padding:12px">Not enough varied data yet to show correlations.</div>`; return; }
+
+  container.innerHTML=correlations.map(c=>{
+    const color=c.diff>5?C.green:c.diff>0?C.amber:c.diff<-5?C.red:C.gray;
+    const arrow=c.diff>0?"↑":c.diff<0?"↓":"=";
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid ${C.grayMid}">
+      <div>
+        <div style="font-weight:700;font-size:13px;color:${C.dark}">${c.label}</div>
+        <div style="font-size:11px;color:${C.gray};margin-top:2px">${c.a} · ${c.b}</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0;margin-left:12px">
+        <div style="font-weight:800;font-size:16px;color:${color}">${arrow}${Math.abs(c.diff)} pts</div>
+        <div style="font-size:10px;color:${C.gray}">${c.better} better</div>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function renderInsights(entries){
+  const container=document.getElementById("sh-insights");
+  if(entries.length<5){ container.innerHTML=`<div style="color:#7B6EA6;font-size:13px">Log at least 5 nights to see pattern insights.</div>`; return; }
+
+  const insights=[];
+
+  // HRV trend
+  const hrvEntries=entries.filter(e=>e.morning?.hrv).slice(-7);
+  if(hrvEntries.length>=4){
+    const avg=Math.round(hrvEntries.reduce((s,e)=>s+e.morning.hrv,0)/hrvEntries.length);
+    const recent=Math.round(hrvEntries.slice(-3).reduce((s,e)=>s+e.morning.hrv,0)/3);
+    if(recent>avg+3) insights.push(`💜 Your HRV has been trending up recently (${recent}ms vs ${avg}ms avg) — recovery is improving.`);
+    else if(recent<avg-3) insights.push(`⚠️ Your HRV has dipped recently (${recent}ms vs ${avg}ms avg) — consider extra recovery time.`);
+  }
+
+  // Best sleep day pattern
+  const bestDays=entries.filter(e=>e.score>=80);
+  if(bestDays.length>=2){
+    const exercisedOnBest=bestDays.filter(e=>workoutHistory.some(w=>w.date===e.date)).length;
+    const pct=Math.round((exercisedOnBest/bestDays.length)*100);
+    if(pct>=70) insights.push(`💪 ${pct}% of your best sleep nights followed a workout day.`);
+  }
+
+  // Deep sleep
+  const deepEntries=entries.filter(e=>e.morning?.deep);
+  if(deepEntries.length>=3){
+    const avgDeep=Math.round(deepEntries.reduce((s,e)=>s+e.morning.deep,0)/deepEntries.length*60);
+    insights.push(`🫀 Your average deep sleep is ${avgDeep} minutes. Target is 60+ min.${avgDeep<60?" Focus on consistent bedtime and reducing alcohol.":" Great work!"}`);
+  }
+
+  // Mental chatter
+  const chatLow=entries.filter(e=>e.evening?.chatter<=2&&e.score);
+  const chatHigh=entries.filter(e=>e.evening?.chatter>=4&&e.score);
+  if(chatLow.length>=2&&chatHigh.length>=2){
+    const la=Math.round(chatLow.reduce((s,e)=>s+e.score,0)/chatLow.length);
+    const ha=Math.round(chatHigh.reduce((s,e)=>s+e.score,0)/chatHigh.length);
+    if(la>ha+5) insights.push(`🧠 Low mental chatter nights average a ${la-ha}-point higher sleep score. Your wind-down routine matters.`);
+  }
+
+  container.innerHTML=insights.length?insights.map(t=>`<div style="font-size:13px;color:#4C4076;line-height:1.5;padding:4px 0;border-bottom:1px solid #DDD6FE;margin-bottom:4px">${t}</div>`).join("")
+    :`<div style="color:#7B6EA6;font-size:13px">Keep logging — insights will appear as patterns emerge.</div>`;
+}
+
+// ── Sleep CSV Export ───────────────────────────────────────────────────────────
+
+function exportSleepData(){
+  const today=new Date();
+  const pm=prevMonthLabel();
+  // Match your spreadsheet columns A-AO
+  const headers=["Day","Date","Levo Time","Gruns","Nutrops","Creatine","Protein Goal Met",
+    "Fiber Goal Met","Water (oz)","Dinner Time","Caffeine After Noon",
+    "Wine","# Glasses","Wine Time","Feals Gummy","Feals Dose",
+    "Workout","Workout Intensity","Steps","Stress","Mood","Energy",
+    "Mental Chatter","Gratitude","Prayer/Devotional","Notes",
+    "Apple Sleep Score","Total Sleep (hrs)","Bedtime","REM (hrs)",
+    "Core (hrs)","Deep (hrs)","Resting HR","HRV","Respiratory Rate",
+    "Wake Time","Wake-ups","Bathroom Trips","Refreshed","Sleep Quality Score"];
+
+  const rows=[headers];
+  const allDates=Object.keys(sleepData).sort();
+
+  // Also include dates with nutrition data
+  const allKeys=new Set([...allDates,...nutritionHistory.map(e=>e.date)]);
+  [...allKeys].sort().forEach(ds=>{
+    const sl=sleepData[ds]||{};
+    const ev=sl.evening||{};
+    const mo=sl.morning||{};
+    const nut=nutritionHistory.find(e=>e.date===ds)||{};
+    const wo=workoutHistory.filter(e=>e.date===ds);
+    const d=new Date(ds+"T12:00:00");
+    rows.push([
+      d.toLocaleDateString("en-US",{weekday:"long"}),
+      fmtDate(ds),
+      nut.levoTime||"",
+      nut.gruns?"Y":"N",
+      nut.nutrops?"Y":"N",
+      nut.creatine||0,
+      nut.proteinGoalMet?"Y":"N",
+      (nut.fiber||0)>=nutritionTargets.fiber?"Y":"N",
+      Math.round((nut.water||0)*8),
+      ev.dinnerTime||"",
+      ev.caffeine?"Y":ev.caffeine===false?"N":"",
+      ev.wine?"Y":ev.wine===false?"N":"",
+      ev.wineGlasses||"",
+      ev.wineTime||"",
+      ev.feals?"Y":ev.feals===false?"N":"",
+      ev.fealsDose||"",
+      wo.map(w=>w.workoutLabel).join("; ")||"",
+      wo.length>0?(wo[wo.length-1].intensity||""):"",
+      nut.steps||"",
+      ev.stress||"",
+      ev.mood||"",
+      ev.energy||"",
+      ev.chatter||"",
+      ev.gratitude?"Y":ev.gratitude===false?"N":"",
+      ev.prayer?"Y":ev.prayer===false?"N":"",
+      (ev.notes||"").replace(/"/g,'""'),
+      mo.appleScore||"",
+      mo.totalSleep||"",
+      mo.bedtime||"",
+      mo.rem||"",
+      mo.core||"",
+      mo.deep||"",
+      mo.hr||"",
+      mo.hrv||"",
+      mo.resp||"",
+      mo.wakeTime||"",
+      mo.wakeups!==undefined?mo.wakeups:"",
+      mo.bathroom!==undefined?mo.bathroom:"",
+      mo.refreshed||"",
+      sl.score||"",
+    ]);
+  });
+
+  const csv=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(",")).join("\n");
+  downloadCSV(csv,"Wellness_Sleep_"+pm.replace(" ","_")+".csv");
+}
+
+// ── Load sleep data on startup ─────────────────────────────────────────────────
+loadSleepData();
+
+// ═══════════════════════════════════════════════════════════ INIT ══════════════
+loadAllData();
+</script>
+</body>
+</html>
