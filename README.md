@@ -1,1 +1,0 @@
-Holistic Wellness Tracker
